@@ -29,7 +29,7 @@ docker run -t --env-file=.env smartcontract/smartoracle
 ```
 Once your configuration is set, pull down the oracle image and run it with your configuration.
 
-For more information on setting up an instance, or building it locally, visit the [wiki page on installation](TODO).
+For more information on setting up an instance, or building it locally, visit the [wiki page on installation](https://github.com/smartoracles/core-ruby/wiki/Install).
 
 ## Coordinators and Authentication
 ```shell
@@ -104,7 +104,7 @@ A `POST` to `/assignments` will return the `XID`, or external ID, which is used 
 Make sure to grab the XID to refer to the assignment in the future. The assignment hash is intentionally not used in the future, as the XID is not easily linkable with the assignment.
 </aside>
 
-# Coordinator Notifications
+# Assignment Notifications
 
 Once an assignment is created, it will automatically run and update itself based on its schedule and the logic in the adapter. Updates cannot be fed in by the coordinator, but the coordinator can receive push notifications whenever the assignment is updated. Simply set the URL of the assignment's coordinator to receive push notifications.
 
@@ -183,7 +183,7 @@ Snapshot IDs are unique, you should never receive duplicate snapshots.
 }
 ```
 
-`POST` to `/assignments/:xid`
+`PATCH` to `/assignments/:xid`
 
 When the assignment is finished, a notification will be pushed to the coordinator. If any signatures were needed from the oracle, for things like releasing Bitcoin escrow, a signature is returned in addition to a status update.
 
@@ -192,3 +192,108 @@ Parameter | Type | Description
 signatures | array(string) | if a signature is required, like for Bitcoin escrow, it returns a signature for the outcome that was determined
 status | string | Either "completed" or "failed"
 xid | string | the XID of the related assignment
+
+
+# Adapters
+
+The Smart Oracle image ships with functionality out of the box to connect Ethereum contracts and Bitcoin escrow to JSON APIs(the lingua franca of the web). But the real power of the Smart Oracle platform lies in its abilitiy to be extended.
+
+Adapters can be configured with the Smart Oracle core to add functionality. Whether it's a different data format like XML, or special computation, the Smart Oracle makes it possible to further extend off-chain capabilities via adapters.
+
+### APIs
+
+Adapters integrate with the core in a service oriented model, so they can run locally, next to the core or on remote servers. The minimum integrations an adapter needs to support are based on whether the adapter will push information or the core will pull. The APIs needed to create a custom adapter are listed below.
+
+### Oracle Schema
+
+In order to make an adapter's input and output predictable, adapters need to specify schemas. Schemas are created using a JSON Schema for expected prerequisites and on/off-chain inputs/outputs. See the [specification here](https://github.com/smartoracles/spec).
+
+
+## Create Assignment
+
+__*Required*__: `POST` to adapter path `/assignments`
+
+The action used for an oracle to pass an assignment over to an adapter.
+
+The expected response should include:
+
+Parameter | Type | Description
+---- | ----- | --------
+xid | string | the unique identifier to associate an assignment with
+end_at | string | a timestamp in Unix Timestamp(UTC) format.
+data | object | a JSON object containing all information specified in the adapter's schema
+
+
+## Create Snapshot _(Pull)_
+
+`POST` to adapter path `/assignments/:assignment_xid/snapshots`
+
+The action used for an oracle to pass an assignment over to an adapter.
+
+Parameter | Type | Description
+---- | ----- | --------
+description | string | a detailed human readable description of the snapshot
+description_url | string | a supporting URL relating to the update
+details | object | a JSON object of extra supporting information returned by the adapter
+fulfilled | boolean | marks whether the snapshot has been completed or not
+status | string | a description of the assignment's current status
+summary | string | a short human readable summary of the snapshot
+value | string | the latest value returned by the adapter
+xid | string | an unique external ID to identify the snapshot by
+
+### Unfulfilled Snapshots
+
+Creating a snapshot may require more time than you are willing to leave a request hanging for. Snapshots that are requested via the pull style can be marked as unfulfilled upon creation, and fulfilled at a later time.
+
+In order to fulfill an unfulfilled snapshot you must implement the update snapshot integration.
+
+
+## Delete Assignment
+
+`DELETE` to `/assignments/:xid`
+
+Used to indicate the end of an assignment.
+
+Parameter | Type | Description
+---- | ----- | --------
+status | string | optional string to specify the final state of the assignment
+xid | string | identifier of the assignment
+
+
+## Create Snapshot _(Push)_
+
+`POST` pushed to the core path `/snapshots`
+
+__This is an integration that originates in the adapter and is pushed from the adapter to the core.__
+
+A pushed snapshot is automatically marked as fulfilled.
+
+Parameter | Type | Description
+---- | ----- | --------
+assignment_xid | string | identifier for the associated assignment
+description | string | a detailed human readable description of the snapshot
+description_url | string | a supporting URL relating to the update
+details | object | a JSON object of extra supporting information returned by the adapter
+status | string | a description of the assignment's current status
+summary | string | a short human readable summary of the snapshot
+value | string | the latest value returned by the adapter
+xid | string | an unique external ID to identify the snapshot by
+
+## Update Snapshot _(Push)_
+
+`PATCH` pushed to the core path `/snapshots/:xid`
+
+__This is an integration that originates in the adapter and is pushed from the adapter to the core.__
+
+Only unfulfilled snapshots can be updated. When a snapshot is updated it is automatically marked as fulfilled.
+
+Parameter | Type | Description
+---- | ----- | --------
+assignment_xid | string | identifier for the associated assignment
+description | string | a detailed human readable description of the snapshot
+description_url | string | a supporting URL relating to the update
+details | object | a JSON object of extra supporting information returned by the adapter
+status | string | a description of the assignment's current status
+summary | string | a short human readable summary of the snapshot
+value | string | the latest value returned by the adapter
+xid | string | an unique external ID to identify the snapshot by
