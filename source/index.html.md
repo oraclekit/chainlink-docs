@@ -5,7 +5,7 @@ title: Smart Oracle Documentation
   <!-- - shell -->
 
 toc_footers:
-  - <a href='#'>Get a hosted version</a>
+  - <a href='mailto:support@smartcontract.com'>Need Help?</a>
 
 includes:
   - errors
@@ -34,6 +34,9 @@ docker run -t --env-file=.env smartcontract/smartoracle
 Once your configuration is set, pull down the oracle image and run it with your configuration.
 
 For more information on setting up an instance, or building it locally, visit the [wiki page on installation](https://github.com/smartoracles/core-ruby/wiki/Install).
+
+To have a managed instance spun up for you, contact us at [support@smartcontract.com](mailto:support@smartcontract.com).
+
 
 ## Authentication
 
