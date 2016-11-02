@@ -15,7 +15,7 @@ search: true
 
 # Introduction
 
-Welcome to the Smart Oracle documentation. An oracle provides data into the blockchain that cannot be accessed by the blockchain itself, due to consensus constraints.
+Welcome to the Smart Oracle API documentation. An oracle provides data into the blockchain that cannot be accessed by the blockchain itself, due to consensus constraints.
 
 The work specified for a Smart Oracle is called an Assignment. [Assignments](#assignments) can be handled by the oracle itself, or the oracle's capabilities can be expanded by creating an adapter for the oracle.
 
@@ -33,7 +33,7 @@ docker run -t --env-file=.env smartcontract/smartoracle
 
 Once your configuration is set, pull down the oracle image and run it with your configuration.
 
-For more information on setting up an instance, or building it locally, visit the [wiki page on installation](https://github.com/smartoracles/core-ruby/wiki/Install).
+For more information on setting up an instance, or building it locally, visit the [wiki page on installation](https://github.com/smartoracles/core-ruby/wiki/Install). Alternatively, if you want to view the source code of the image, you can do so on [GitHub](https://github.com/smartoracles/core-ruby).
 
 To have a managed instance spun up for you, contact us at [support@smartcontract.com](mailto:support@smartcontract.com).
 
