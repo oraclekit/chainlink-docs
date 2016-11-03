@@ -178,7 +178,7 @@ xid | string | a unique external ID to identify the assignment
 Parameter | Type | Description
 ---- | ----- | --------
 description | string | a detailed human readable description of the snapshot
-description_url | string | a supporting URL relating to the update
+descriptionURL | string | a supporting URL relating to the update
 details | object | a JSON object of extra supporting information returned by the adapter
 summary | string | a short human readable summary of the snapshot
 value | string | the latest value returned by the adapter
@@ -196,9 +196,9 @@ All push notifications are authorized with the same credentials used to create t
 {
   "oracle": {
     "address": "0x72c8379f845bb3cb30e02ef1feb84742debc1efb",
-    "json_abi": "contract Oracle {\n  bytes32 currentValue;\n  address creator;\n\n  function Oracle() {\n    creator = msg.sender;\n  }\n\n  function update(bytes32 newCurrent) {\n    if (msg.sender != creator) return;\n    currentValue = newCurrent;\n  }\n\n  function current() constant returns (bytes32 current) {\n    return currentValue;\n  }\n\n  function () constant returns (bytes32 current) {\n    return currentValue;\n  }\n}",
-    "read_address": "9fa6a6e3",
-    "solidity_abi": "contract Oracle{function Oracle();function update(bytes32 newCurrent);function current()constant returns(bytes32 current);}"
+    "jsonABI": "contract Oracle {\n  bytes32 currentValue;\n  address creator;\n\n  function Oracle() {\n    creator = msg.sender;\n  }\n\n  function update(bytes32 newCurrent) {\n    if (msg.sender != creator) return;\n    currentValue = newCurrent;\n  }\n\n  function current() constant returns (bytes32 current) {\n    return currentValue;\n  }\n\n  function () constant returns (bytes32 current) {\n    return currentValue;\n  }\n}",
+    "readAddress": "9fa6a6e3",
+    "solidityABI": "contract Oracle{function Oracle();function update(bytes32 newCurrent);function current()constant returns(bytes32 current);}"
   },
   "xid": "f0577c3e-9e5a-4840-9c9b-37d326c3d2e3"
 }
@@ -211,9 +211,9 @@ If an assignment needs some on-chain setup, it cannot immediately respond with a
 Parameter | Type | Description
 ---- | ----- | --------
 address | string | Ethereum address location
-json_abi | string | a stringified version of the JSON ABI for the contract
-read_address | string | the hash for the read function of the Ethereum contract
-solidity_abi | string | the Solidity ABI to include in a contract using this oracle
+jsonABI | string | a stringified version of the JSON ABI for the contract
+readAddress | string | the hash for the read function of the Ethereum contract
+solidityABI | string | the Solidity ABI to include in a contract using this oracle
 xid | string | the XID of the related assignment
 
 
@@ -221,9 +221,9 @@ xid | string | the XID of the related assignment
 
 ```json
 {
-  "assignment_xid": "f0577c3e-9e5a-4840-9c9b-37d326c3d2e3",
+  "assignmentXID": "f0577c3e-9e5a-4840-9c9b-37d326c3d2e3",
   "description": "Blockchain ID: 0x5803d6bb728b002d5a9aedc2eebec404fcbc2e2966f5e81abe297995b2980046",
-  "description_url": "https://testnet.etherscan.io/tx/0x5803d6bb728b002d5a9aedc2eebec404fcbc2e2966f5e81abe297995b2980046",
+  "descriptionURL": "https://testnet.etherscan.io/tx/0x5803d6bb728b002d5a9aedc2eebec404fcbc2e2966f5e81abe297995b2980046",
   "details": {
     "current": "10000000034567123",
     "total": "98700000035511224"
@@ -237,13 +237,13 @@ xid | string | the XID of the related assignment
 
 `POST` to `/assignments/:assignment_xid/snapshots`
 
-Each time the assignment is updated it creates a snapshot. A snapshot is the current status of the assignment. Whenever a snapshot is created, it is pushed to the coordinator. Further information is provided in machine readable form in the `details` section, in various formats depending on the adapter. Information is provided in human readable form in the `summary` and `description` fields, as well as the `description_url`.
+Each time the assignment is updated it creates a snapshot. A snapshot is the current status of the assignment. Whenever a snapshot is created, it is pushed to the coordinator. Further information is provided in machine readable form in the `details` section, in various formats depending on the adapter. Information is provided in human readable form in the `summary` and `description` fields, as well as the `descriptionURL`.
 
 Parameter | Type | Description
 ---- | ----- | --------
-assignment_xid | string | the XID of the related assignment
+assignmentXID | string | the XID of the related assignment
 description | string | a detailed human readable description of the snapshot
-description_url | string | a supporting URL relating to the update
+descriptionURL | string | a supporting URL relating to the update
 details | object | a JSON object of extra supporting information returned by the adapter
 status | string | a description of the assignment's current status
 summary | string | a short human readable summary of the snapshot
@@ -301,7 +301,7 @@ The expected response should include:
 Parameter | Type | Description
 ---- | ----- | --------
 xid | string | the unique identifier to associate an assignment with
-end_at | string | a timestamp in Unix Timestamp(UTC) format.
+endAt | string | a timestamp in Unix Timestamp(UTC) format.
 data | object | a JSON object containing all information specified in the adapter's schema
 
 
@@ -314,7 +314,7 @@ The action used for an oracle to pass an assignment over to an adapter.
 Parameter | Type | Description
 ---- | ----- | --------
 description | string | a detailed human readable description of the snapshot
-description_url | string | a supporting URL relating to the update
+descriptionURL | string | a supporting URL relating to the update
 details | object | a JSON object of extra supporting information returned by the adapter
 fulfilled | boolean | marks whether the snapshot has been completed or not
 status | string | a description of the assignment's current status
@@ -351,9 +351,9 @@ A pushed snapshot is automatically marked as fulfilled.
 
 Parameter | Type | Description
 ---- | ----- | --------
-assignment_xid | string | identifier for the associated assignment
+assignmentXID | string | identifier for the associated assignment
 description | string | a detailed human readable description of the snapshot
-description_url | string | a supporting URL relating to the update
+descriptionURL | string | a supporting URL relating to the update
 details | object | a JSON object of extra supporting information returned by the adapter
 status | string | a description of the assignment's current status
 summary | string | a short human readable summary of the snapshot
@@ -370,9 +370,9 @@ Only unfulfilled snapshots can be updated. When a snapshot is updated it is auto
 
 Parameter | Type | Description
 ---- | ----- | --------
-assignment_xid | string | identifier for the associated assignment
+assignmentXID | string | identifier for the associated assignment
 description | string | a detailed human readable description of the snapshot
-description_url | string | a supporting URL relating to the update
+descriptionURL | string | a supporting URL relating to the update
 details | object | a JSON object of extra supporting information returned by the adapter
 status | string | a description of the assignment's current status
 summary | string | a short human readable summary of the snapshot
