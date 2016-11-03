@@ -99,7 +99,7 @@ The currency is configurable based on the networks that the oracle operates in. 
 ## Create
 ```shell
 curl -u apiKey:apiSecret -X POST -H 'Content-Type: application/json'
-  -d '{"assignment":{"adapterType":"ethereumBytes32JSON", "adapterParams": {"endpoint": "https://bitstamp.net/api/ticker/", "fields": ["last"]}, "description":"Bitcoin Price","schedule":{"endAt":"1478028219","hour":"0","minute":"0"}},"assignmentHash":"b2e55902bb7728871fa69f503007577ef8a1ae449f486b5c0aaf644661d216d1","signatures":[],"version":"0.1.0"}'
+  -d '{"assignment":{"adapterType":"ethereumBytes32JSON", "adapterParams": {"endpoint": "https://bitstamp.net/api/ticker/", "fields": ["last"]}, "schedule":{"endAt":"1478028219","hour":"0","minute":"0"}},"assignmentHash":"b2e55902bb7728871fa69f503007577ef8a1ae449f486b5c0aaf644661d216d1","signatures":[],"version":"0.1.0"}'
   http://localhost:6688/assignments
 ```
 
@@ -114,6 +114,14 @@ curl -u apiKey:apiSecret -X POST -H 'Content-Type: application/json'
 ```
 
 A `POST` to `/assignments` will return the `XID`, or external ID, which is used to identify the assignment in the future. The response also includes a hash of the assignment specified, and a signature of that hash to attest to the oracle's acceptance of the assignment.
+
+Parameter | Type | Description
+---- | ----- | --------
+adapterType | string | identifies the type of work to be done
+adapterParams | object | a JSON object meeting the requirements of the adapter's schema
+endAt | string | specify the time the assignment will run until (Unix timestamp)
+schedule | object | an [assignment schedule object](#scheduling)
+startAt | string | specify the time the assignment is/was scheduled to start at (Unix timestamp)
 
 <aside class="success">
 Make sure to grab the XID to refer to the assignment in the future. The assignment hash is intentionally not used in the future, as the XID is not easily linkable with the assignment.
