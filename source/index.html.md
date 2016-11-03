@@ -119,6 +119,64 @@ A `POST` to `/assignments` will return the `XID`, or external ID, which is used 
 Make sure to grab the XID to refer to the assignment in the future. The assignment hash is intentionally not used in the future, as the XID is not easily linkable with the assignment.
 </aside>
 
+
+## Show
+
+```shell
+curl -u apiKey:apiSecret http://localhost:6688/assignments/f0577c3e-9e5a-4840-9c9b-37d326c3d2e3
+```
+
+> JSON response:
+
+```json
+{
+  "adapterType": "ethereumBytes32JSON",
+  "endAt": "1480720191",
+  "parameters": {
+    "fields": ["last"],
+    "endpoint": "https://bitstamp.net/api/ticker/"
+  },
+  "snapshots": [
+    {
+      "description": "Blockchain Record: 0x865167b8e74daec5e0f2faf4975b7fe21d791b83d7c6ba10ece7e4d0b193461e",
+      "descriptionURL": "https://testnet.etherscan.io/tx/0x865167b8e74daec5e0f2faf4975b7fe21d791b83d7c6ba10ece7e4d0b193461e",
+      "details": {
+        "value": "726.60"
+      },
+      "summary": "Assignment \"1\" updated its value to \"726.60\".",
+      "value": "726.60",
+      "xid": "0x865167b8e74daec5e0f2faf4975b7fe21d791b83d7c6ba10ece7e4d0b193461e"
+    }
+  ],
+  "startAt": "1478128191",
+  "status":"in progress",
+  "xid": "f0577c3e-9e5a-4840-9c9b-37d326c3d2e3"
+}
+```
+A coordinator can check the state of one of their assignments and get a list of all the related snapshots.
+
+Parameter | Type | Description
+---- | ----- | --------
+adapterType | string | identifies the type of work to be done
+endAt | string | specify the time the assignment will run until (Unix timestamp)
+parameters | object | a JSON object meeting the requirements of the adapter's schema
+snapshots | array | an list of associated snapshot objects
+startAt | string | specify the time the assignment is/was scheduled to start at (Unix timestamp)
+status | string | assignment's current execution status
+xid | string | a unique external ID to identify the assignment
+
+### Snapshots
+
+Parameter | Type | Description
+---- | ----- | --------
+description | string | a detailed human readable description of the snapshot
+description_url | string | a supporting URL relating to the update
+details | object | a JSON object of extra supporting information returned by the adapter
+summary | string | a short human readable summary of the snapshot
+value | string | the latest value returned by the adapter
+xid | string | a unique external ID to identify the snapshot by
+
+
 # Coordinator Updates
 
 Once an assignment is created, it will automatically run and update itself based on its schedule and the logic in the adapter. Updates cannot be fed in by the coordinator, but the coordinator can receive push notifications whenever the assignment is updated. Simply set the URL of the assignment's coordinator to receive push notifications.
@@ -182,7 +240,7 @@ details | object | a JSON object of extra supporting information returned by the
 status | string | a description of the assignment's current status
 summary | string | a short human readable summary of the snapshot
 value | string | the latest value returned by the adapter
-xid | string | an unique external ID to identify the snapshot by
+xid | string | a unique external ID to identify the snapshot by
 
 <aside class="success">
 Snapshot IDs are unique, you should never receive duplicate snapshots.
@@ -254,7 +312,7 @@ fulfilled | boolean | marks whether the snapshot has been completed or not
 status | string | a description of the assignment's current status
 summary | string | a short human readable summary of the snapshot
 value | string | the latest value returned by the adapter
-xid | string | an unique external ID to identify the snapshot by
+xid | string | a unique external ID to identify the snapshot by
 
 ### Unfulfilled Snapshots
 
@@ -292,7 +350,7 @@ details | object | a JSON object of extra supporting information returned by the
 status | string | a description of the assignment's current status
 summary | string | a short human readable summary of the snapshot
 value | string | the latest value returned by the adapter
-xid | string | an unique external ID to identify the snapshot by
+xid | string | a unique external ID to identify the snapshot by
 
 ## Update Snapshot _(Push)_
 
@@ -311,4 +369,4 @@ details | object | a JSON object of extra supporting information returned by the
 status | string | a description of the assignment's current status
 summary | string | a short human readable summary of the snapshot
 value | string | the latest value returned by the adapter
-xid | string | an unique external ID to identify the snapshot by
+xid | string | a unique external ID to identify the snapshot by
