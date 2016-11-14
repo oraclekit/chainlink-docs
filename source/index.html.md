@@ -1,8 +1,8 @@
 ---
 title: Smart Oracle Documentation
 
-<!-- language_tabs: -->
-  <!-- - shell -->
+language_tabs:
+  - shell
 
 toc_footers:
   - <a href='mailto:support@smartcontract.com'>Need Help?</a>
