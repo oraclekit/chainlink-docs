@@ -28,10 +28,12 @@ First set up your configuration, by creating a `.env` file, that has at least th
 
 ```shell
 docker pull smartcontract/smartoracle
-docker run -t --env-file=.env smartcontract/smartoracle rake oracle:initialize
+docker run -it --env-file=.env smartcontract/smartoracle rake oracle:initialize
+```
 
 > Run your oracle:
 
+```shell
 docker run -t --env-file=.env smartcontract/smartoracle
 ```
 
