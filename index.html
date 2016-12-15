@@ -129,11 +129,13 @@
 
 <p>First set up your configuration, by creating a <code class="prettyprint">.env</code> file, that has at least the variables set in the <a href="https://github.com/smartoracles/core-ruby/blob/master/.env.example">.env.example</a>. You will need a URL for a running instance of Postgres and URL for an Ethereum connected node.</p>
 <pre class="highlight shell"><code>docker pull smartcontract/smartoracle
-docker run -t --env-file<span class="o">=</span>.env smartcontract/smartoracle rake oracle:initialize
+docker run -it --env-file<span class="o">=</span>.env smartcontract/smartoracle rake oracle:initialize
+</code></pre>
 
-<span class="gp">&gt; </span>Run your oracle:
-
-docker run -t --env-file<span class="o">=</span>.env smartcontract/smartoracle
+<blockquote>
+<p>Run your oracle:</p>
+</blockquote>
+<pre class="highlight shell"><code>docker run -t --env-file<span class="o">=</span>.env smartcontract/smartoracle
 </code></pre>
 
 <p>After setting up your configuration, pull down the oracle image and use the configuration to get your database set up.</p>
