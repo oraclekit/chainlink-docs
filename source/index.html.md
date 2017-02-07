@@ -89,7 +89,7 @@ The current Smart Oracle ships with several built in adapters: `ethereumBytes32`
   }
 }
 ```
-Subtasks are a series of steps taken by the oracle to complete an assignment. Each time an assignment is updated it processes its pipeline of subtasks, each of which is handled by an [adapter](#adapter-type-and-parameters). The subtask's initial configuration, along with any data passed from earlier subtasks in the pipeline are passed to the adapter for each update. The adapter's output for the subtask is passed to the next subtask, until the final subtask's output determines the values of the assignment's latest snapshot.
+Subtasks are a series of steps taken by the oracle to complete an assignment. Each time an assignment is updated it processes its pipeline of subtasks, each of which is handled by an [adapter](#adapter-type-and-parameters). The subtask's initial configuration, along with any data passed from earlier subtasks in the pipeline are passed to the adapter for each update. The adapter's output for the subtask is passed to the next subtask, until the final subtask's output determines the values of the assignment's latest [snapshot](#snapshots).
 
 Parameter | Type | Description
 ---- | ----- | --------
@@ -212,6 +212,81 @@ details | object | a JSON object of extra supporting information returned by the
 summary | string | a short human readable summary of the snapshot
 value | string | the latest value returned by the adapter
 xid | string | a unique external ID to identify the snapshot by
+
+
+# Snapshots
+
+## Create
+```shell
+curl -u apiKey:apiSecret -X POST
+  http://localhost:6688/assignments/f0577c3e-9e5a-4840-9c9b-37d326c3d2e3/snapshots
+```
+
+> JSON response:
+
+```json
+{
+  "assignmentXID": "f0577c3e-9e5a-4840-9c9b-37d326c3d2e3",
+  "description": "Blockchain record: 0x2d8b24bc521a7fb02c1eb3e157296517f628646f6b5b8ee8952034fa2ca7f385",
+  "descriptionURL": "https://etherscan.io/tx/0x2d8b24bc521a7fb02c1eb3e157296517f628646f6b5b8ee8952034fa2ca7f385",
+  "details": {
+    "source": "bitstamp.net",
+    "txid": "0x2d8b24bc521a7fb02c1eb3e157296517f628646f6b5b8ee8952034fa2ca7f385",
+    "value": "1035.03"
+  },
+  "summary": "The oracle value was updated to \"1035.03\"",
+  "value": "1035.03",
+  "xid": "0799f829-15e8-475f-8f3e-a55488713da0"
+}
+```
+
+
+A `POST` to `/assignments/XID/snapshots` will always return the `XID` of a snapshot. Depending on what steps are required of the assignment, it may return all of the snapshot immediately, or if the details take time to compute the results of the snapshot will be retrievable with the assignment's `XID`.
+
+Parameter | Type | Description
+---- | ----- | --------
+description | string | a detailed human readable description of the snapshot
+descriptionURL | string | a supporting URL relating to the update
+details | object | a JSON object of extra supporting information returned by the adapter
+summary | string | a short human readable summary of the snapshot
+value | string | the latest value returned by the adapter
+xid | string | a unique external ID to identify the snapshot by
+
+## Show
+
+```shell
+curl -u apiKey:apiSecret http://localhost:6688/snapshots/0799f829-15e8-475f-8f3e-a55488713da0
+```
+
+> JSON response:
+
+```json
+{
+  "assignmentXID": "f0577c3e-9e5a-4840-9c9b-37d326c3d2e3",
+  "description": "Blockchain record: 0x2d8b24bc521a7fb02c1eb3e157296517f628646f6b5b8ee8952034fa2ca7f385",
+  "descriptionURL": "https://etherscan.io/tx/0x2d8b24bc521a7fb02c1eb3e157296517f628646f6b5b8ee8952034fa2ca7f385",
+  "details": {
+    "source": "bitstamp.net",
+    "txid": "0x2d8b24bc521a7fb02c1eb3e157296517f628646f6b5b8ee8952034fa2ca7f385",
+    "value": "1035.03"
+  },
+  "summary": "The oracle value was updated to \"1035.03\"",
+  "value": "1035.03",
+  "xid": "0799f829-15e8-475f-8f3e-a55488713da0"
+}
+```
+
+To retrieve the details of a snapshot, you can issue a `GET` request to `/snapshots/XID`.
+
+Parameter | Type | Description
+---- | ----- | --------
+description | string | a detailed human readable description of the snapshot
+descriptionURL | string | a supporting URL relating to the update
+details | object | a JSON object of extra supporting information returned by the adapter
+summary | string | a short human readable summary of the snapshot
+value | string | the latest value returned by the adapter
+xid | string | a unique external ID to identify the snapshot by
+
 
 
 # Coordinator Updates
