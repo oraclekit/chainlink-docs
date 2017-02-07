@@ -151,7 +151,8 @@ docker run -it --env-file<span class="o">=</span>.env smartcontract/smartoracle 
 <p>To have a managed instance spun up for you, contact us at <a href="mailto:support@smartcontract.com">support@smartcontract.com</a>.</p>
 
 <h2 id="authentication">Authentication</h2>
-<pre class="highlight shell"><code>curl <span class="s2">"http://localhost:6688/assignments/f0577c3e-9e5a-4840-9c9b-37d326c3d2e3"</span> -u apiKey:apiSecret
+<pre class="highlight shell"><code>curl -u apiKey:apiSecret
+  http://localhost:6688/assignments/f0577c3e-9e5a-4840-9c9b-37d326c3d2e3
 </code></pre>
 
 <p>Both coordinators and adapters need to authenticate to access the data they are allowed access to. In both cases authentication is handled via HTTP Authentication.</p>
@@ -176,7 +177,38 @@ docker run -it --env-file<span class="o">=</span>.env smartcontract/smartoracle 
 
 <p>Every assignment has a type, which specifies the kind of adapter the oracle will use to perform the work requested. Each different type of adapter requires different parameters, some passed on the blockchain, some passed off chain. The parameters each adapter will accept are specified ahead of time by the adapter&rsquo;s creator.</p>
 
-<p>The current Smart Oracle ships with two built in adapters: <code class="prettyprint">ethereumBytes32JSON</code> for turning JSON APIs into Ethereum oracles, and <code class="prettyprint">bitcoinComparisonJSON</code> for releasing Bitcoin escrow based on the values of JSON APIs. For more information on setting up custom adapters, see the section on <a href="TODO">creating an adapter</a>.</p>
+<p>The current Smart Oracle ships with several built in adapters: <code class="prettyprint">ethereumBytes32</code> for writing strings into Ethereum, <code class="prettyprint">ethereumUint256</code> for writing uints into Ethereum, <code class="prettyprint">httpGetJSON</code> for retrieving JSON across the web, and <code class="prettyprint">bitcoinComparisonJSON</code> for releasing Bitcoin escrow based on the values of JSON APIs. For more information on setting up custom adapters, see the section on <a href="/#adapter-integration">creating an adapter</a>.</p>
+
+<h3 id="subtasks">Subtasks</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"adapterType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ethereumBytes32"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"adapterParams"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x34d946ab16079a97976e006079efe422b1fe1905"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8b147245"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Subtasks are a series of steps taken by the oracle to complete an assignment. Each time an assignment is updated it processes its pipeline of subtasks, each of which is handled by an <a href="#adapter-type-and-parameters">adapter</a>. The subtask&rsquo;s initial configuration, along with any data passed from earlier subtasks in the pipeline are passed to the adapter for each update. The adapter&rsquo;s output for the subtask is passed to the next subtask, until the final subtask&rsquo;s output determines the values of the assignment&rsquo;s latest <a href="#snapshots">snapshot</a>.</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>adapterType</td>
+<td>string</td>
+<td>identifies the type of work to be done</td>
+</tr>
+<tr>
+<td>adapterParams</td>
+<td>object</td>
+<td>a JSON object meeting the requirements of the adapter&rsquo;s schema, setting the initial configuration for the adapter</td>
+</tr>
+</tbody></table>
 
 <h3 id="scheduling">Scheduling</h3>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
@@ -202,7 +234,7 @@ docker run -it --env-file<span class="o">=</span>.env smartcontract/smartoracle 
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<p>Space on blockchains is limited and so generally costly to utilize. On the other side of the oracle, API calls to protected APIs are often behind pay walls. Oracle services by their nature come with expenses. For this reason, the Smart Oracle platform has a way to specify service prices for each adapter.</p>
+<p>Space on blockchains is limited and thus costly to utilize. On the other side of the oracle, API calls to protected APIs are often behind pay walls. Oracle services by their nature come with expenses. For this reason, the Smart Oracle platform has a way to specify service prices for each adapter.</p>
 
 <p>Prices are generally set per request made by the oracle; This can be prepaid for scheduled services, or paid per request for on demand services. Additionally, prices can be set based on the duration of required availability of the oracle.</p>
 
@@ -210,7 +242,7 @@ docker run -it --env-file<span class="o">=</span>.env smartcontract/smartoracle 
 
 <h2 id="create">Create</h2>
 <pre class="highlight shell"><code>curl -u apiKey:apiSecret -X POST -H <span class="s1">'Content-Type: application/json'</span>
-  -d <span class="s1">'{"assignment":{"adapterType":"ethereumBytes32JSON", "adapterParams": {"endpoint": "https://bitstamp.net/api/ticker/", "fields": ["last"]}, "schedule":{"endAt":"1478028219","hour":"0","minute":"0"}},"assignmentHash":"b2e55902bb7728871fa69f503007577ef8a1ae449f486b5c0aaf644661d216d1","signatures":[],"version":"0.1.0"}'</span>
+  -d <span class="s1">'{"assignment":{"subtasks":[{"adapterType": "httpGetJSON", "adapterParams": {"endpoint": "https://bitstamp.net/api/ticker/", "fields": ["last"]}},{"adapterType":"ethereumBytes32"}]}, "schedule":{"endAt":"1478028219","hour":"0","minute":"0"}},"version":"1.0.0"}'</span>
   http://localhost:6688/assignments
 </code></pre>
 
@@ -234,19 +266,9 @@ docker run -it --env-file<span class="o">=</span>.env smartcontract/smartoracle 
 </tr>
 </thead><tbody>
 <tr>
-<td>adapterType</td>
-<td>string</td>
-<td>identifies the type of work to be done</td>
-</tr>
-<tr>
-<td>adapterParams</td>
-<td>object</td>
-<td>a JSON object meeting the requirements of the adapter&rsquo;s schema</td>
-</tr>
-<tr>
-<td>endAt</td>
-<td>string</td>
-<td>specify the time the assignment will run until (Unix timestamp)</td>
+<td>subtasks</td>
+<td>array</td>
+<td>an ordered list of the assignment&rsquo;s <a href="#subtasks">subtasks</a></td>
 </tr>
 <tr>
 <td>schedule</td>
@@ -254,9 +276,9 @@ docker run -it --env-file<span class="o">=</span>.env smartcontract/smartoracle 
 <td>an <a href="#scheduling">assignment schedule object</a></td>
 </tr>
 <tr>
-<td>startAt</td>
+<td>version</td>
 <td>string</td>
-<td>specify the time the assignment is/was scheduled to start at (Unix timestamp)</td>
+<td>specify the version of the <a href="https://github.com/smartoracles/spec">assignment spec</a>, use &ldquo;1.0.0&rdquo; for the latest version</td>
 </tr>
 </tbody></table>
 
@@ -343,6 +365,135 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 </tbody></table>
 
 <h3 id="snapshots">Snapshots</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>description</td>
+<td>string</td>
+<td>a detailed human readable description of the snapshot</td>
+</tr>
+<tr>
+<td>descriptionURL</td>
+<td>string</td>
+<td>a supporting URL relating to the update</td>
+</tr>
+<tr>
+<td>details</td>
+<td>object</td>
+<td>a JSON object of extra supporting information returned by the adapter</td>
+</tr>
+<tr>
+<td>summary</td>
+<td>string</td>
+<td>a short human readable summary of the snapshot</td>
+</tr>
+<tr>
+<td>value</td>
+<td>string</td>
+<td>the latest value returned by the adapter</td>
+</tr>
+<tr>
+<td>xid</td>
+<td>string</td>
+<td>a unique external ID to identify the snapshot by</td>
+</tr>
+</tbody></table>
+
+<h1 id="snapshots">Snapshots</h1>
+
+<h2 id="create">Create</h2>
+<pre class="highlight shell"><code>curl -u apiKey:apiSecret -X POST
+  http://localhost:6688/assignments/f0577c3e-9e5a-4840-9c9b-37d326c3d2e3/snapshots
+</code></pre>
+
+<blockquote>
+<p>JSON response:</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"assignmentXID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"f0577c3e-9e5a-4840-9c9b-37d326c3d2e3"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Blockchain record: 0x2d8b24bc521a7fb02c1eb3e157296517f628646f6b5b8ee8952034fa2ca7f385"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"descriptionURL"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://etherscan.io/tx/0x2d8b24bc521a7fb02c1eb3e157296517f628646f6b5b8ee8952034fa2ca7f385"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bitstamp.net"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"txid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x2d8b24bc521a7fb02c1eb3e157296517f628646f6b5b8ee8952034fa2ca7f385"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1035.03"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The oracle value was updated to \"1035.03\""</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1035.03"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"xid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0799f829-15e8-475f-8f3e-a55488713da0"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>A <code class="prettyprint">POST</code> to <code class="prettyprint">/assignments/XID/snapshots</code> will always return the <code class="prettyprint">XID</code> of a snapshot. Depending on what steps are required of the assignment, it may return all of the snapshot immediately, or if the details take time to compute the results of the snapshot will be retrievable with the assignment&rsquo;s <code class="prettyprint">XID</code>.</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>description</td>
+<td>string</td>
+<td>a detailed human readable description of the snapshot</td>
+</tr>
+<tr>
+<td>descriptionURL</td>
+<td>string</td>
+<td>a supporting URL relating to the update</td>
+</tr>
+<tr>
+<td>details</td>
+<td>object</td>
+<td>a JSON object of extra supporting information returned by the adapter</td>
+</tr>
+<tr>
+<td>summary</td>
+<td>string</td>
+<td>a short human readable summary of the snapshot</td>
+</tr>
+<tr>
+<td>value</td>
+<td>string</td>
+<td>the latest value returned by the adapter</td>
+</tr>
+<tr>
+<td>xid</td>
+<td>string</td>
+<td>a unique external ID to identify the snapshot by</td>
+</tr>
+</tbody></table>
+
+<h2 id="show">Show</h2>
+<pre class="highlight shell"><code>curl -u apiKey:apiSecret http://localhost:6688/snapshots/0799f829-15e8-475f-8f3e-a55488713da0
+</code></pre>
+
+<blockquote>
+<p>JSON response:</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"assignmentXID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"f0577c3e-9e5a-4840-9c9b-37d326c3d2e3"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Blockchain record: 0x2d8b24bc521a7fb02c1eb3e157296517f628646f6b5b8ee8952034fa2ca7f385"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"descriptionURL"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://etherscan.io/tx/0x2d8b24bc521a7fb02c1eb3e157296517f628646f6b5b8ee8952034fa2ca7f385"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bitstamp.net"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"txid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x2d8b24bc521a7fb02c1eb3e157296517f628646f6b5b8ee8952034fa2ca7f385"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1035.03"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The oracle value was updated to \"1035.03\""</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1035.03"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"xid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0799f829-15e8-475f-8f3e-a55488713da0"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>To retrieve the details of a snapshot, you can issue a <code class="prettyprint">GET</code> request to <code class="prettyprint">/snapshots/XID</code>.</p>
 
 <table><thead>
 <tr>
