@@ -53,7 +53,8 @@ To have a managed instance spun up for you, contact us at [support@smartcontract
 ## Authentication
 
 ```shell
-curl "http://localhost:6688/assignments/f0577c3e-9e5a-4840-9c9b-37d326c3d2e3" -u apiKey:apiSecret
+curl -u apiKey:apiSecret
+  http://localhost:6688/assignments/f0577c3e-9e5a-4840-9c9b-37d326c3d2e3
 ```
 Both coordinators and adapters need to authenticate to access the data they are allowed access to. In both cases authentication is handled via HTTP Authentication.
 
@@ -76,7 +77,24 @@ Assignments are the core of the Smart Oracle model, they are the specifications 
 ### Adapter Type and Parameters
 Every assignment has a type, which specifies the kind of adapter the oracle will use to perform the work requested. Each different type of adapter requires different parameters, some passed on the blockchain, some passed off chain. The parameters each adapter will accept are specified ahead of time by the adapter's creator.
 
-The current Smart Oracle ships with two built in adapters: `ethereumBytes32JSON` for turning JSON APIs into Ethereum oracles, and `bitcoinComparisonJSON` for releasing Bitcoin escrow based on the values of JSON APIs. For more information on setting up custom adapters, see the section on [creating an adapter](TODO).
+The current Smart Oracle ships with several built in adapters: `ethereumBytes32` for writing strings into Ethereum, `ethereumUint256` for writing uints into Ethereum, `httpGetJSON` for retrieving JSON across the web, and `bitcoinComparisonJSON` for releasing Bitcoin escrow based on the values of JSON APIs. For more information on setting up custom adapters, see the section on [creating an adapter](/#adapter-integration).
+
+### Subtasks
+```json
+{
+  "adapterType": "ethereumBytes32",
+  "adapterParams": {
+    "address": "0x34d946ab16079a97976e006079efe422b1fe1905",
+    "method": "8b147245"
+  }
+}
+```
+Subtasks are a series of steps taken by the oracle to complete an assignment. Each time an assignment is updated it processes its pipeline of subtasks, each of which is handled by an [adapter](#adapter-type-and-parameters). The subtask's initial configuration, along with any data passed from earlier subtasks in the pipeline are passed to the adapter for each update. The adapter's output for the subtask is passed to the next subtask, until the final subtask's output determines the values of the assignment's latest snapshot.
+
+Parameter | Type | Description
+---- | ----- | --------
+adapterType | string | identifies the type of work to be done
+adapterParams | object | a JSON object meeting the requirements of the adapter's schema, setting the initial configuration for the adapter
 
 ### Scheduling
 ```json
@@ -102,7 +120,7 @@ Assignments that do not require a schedule, instead working "on demand," can ski
   "perRequest": "1000000000000000"
 }
 ```
-Space on blockchains is limited and so generally costly to utilize. On the other side of the oracle, API calls to protected APIs are often behind pay walls. Oracle services by their nature come with expenses. For this reason, the Smart Oracle platform has a way to specify service prices for each adapter.
+Space on blockchains is limited and thus costly to utilize. On the other side of the oracle, API calls to protected APIs are often behind pay walls. Oracle services by their nature come with expenses. For this reason, the Smart Oracle platform has a way to specify service prices for each adapter.
 
 Prices are generally set per request made by the oracle; This can be prepaid for scheduled services, or paid per request for on demand services. Additionally, prices can be set based on the duration of required availability of the oracle.
 
@@ -111,7 +129,7 @@ The currency is configurable based on the networks that the oracle operates in. 
 ## Create
 ```shell
 curl -u apiKey:apiSecret -X POST -H 'Content-Type: application/json'
-  -d '{"assignment":{"adapterType":"ethereumBytes32JSON", "adapterParams": {"endpoint": "https://bitstamp.net/api/ticker/", "fields": ["last"]}, "schedule":{"endAt":"1478028219","hour":"0","minute":"0"}},"assignmentHash":"b2e55902bb7728871fa69f503007577ef8a1ae449f486b5c0aaf644661d216d1","signatures":[],"version":"0.1.0"}'
+  -d '{"assignment":{"subtasks":[{"adapterType": "httpGetJSON", "adapterParams": {"endpoint": "https://bitstamp.net/api/ticker/", "fields": ["last"]}},{"adapterType":"ethereumBytes32"}]}, "schedule":{"endAt":"1478028219","hour":"0","minute":"0"}},"version":"1.0.0"}'
   http://localhost:6688/assignments
 ```
 
@@ -129,11 +147,10 @@ A `POST` to `/assignments` will return the `XID`, or external ID, which is used 
 
 Parameter | Type | Description
 ---- | ----- | --------
-adapterType | string | identifies the type of work to be done
-adapterParams | object | a JSON object meeting the requirements of the adapter's schema
-endAt | string | specify the time the assignment will run until (Unix timestamp)
+subtasks | array | an ordered list of the assignment's [subtasks](#subtasks)
 schedule | object | an [assignment schedule object](#scheduling)
-startAt | string | specify the time the assignment is/was scheduled to start at (Unix timestamp)
+version | string | specify the version of the [assignment spec](https://github.com/smartoracles/spec), use "1.0.0" for the latest version
+
 
 <aside class="success">
 Make sure to grab the XID to refer to the assignment in the future. The assignment hash is intentionally not used in the future, as the XID is not easily linkable with the assignment.
