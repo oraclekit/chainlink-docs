@@ -177,7 +177,7 @@ docker run -it --env-file<span class="o">=</span>.env smartcontract/smartoracle 
 
 <p>Every assignment has a type, which specifies the kind of adapter the oracle will use to perform the work requested. Each different type of adapter requires different parameters, some passed on the blockchain, some passed off chain. The parameters each adapter will accept are specified ahead of time by the adapter&rsquo;s creator.</p>
 
-<p>The current Smart Oracle ships with several built in adapters: <code class="prettyprint">ethereumBytes32</code> for writing strings into Ethereum, <code class="prettyprint">ethereumUint256</code> for writing uints into Ethereum, <code class="prettyprint">httpGetJSON</code> for retrieving JSON across the web, and <code class="prettyprint">bitcoinComparisonJSON</code> for releasing Bitcoin escrow based on the values of JSON APIs. For more information on setting up custom adapters, see the section on <a href="/#adapter-integration">creating an adapter</a>.</p>
+<p>The current Smart Oracle ships with several built in adapters: <code class="prettyprint">ethereumBytes32</code> for writing strings into Ethereum, <code class="prettyprint">ethereumInt256</code> for writing signed integers into Ethereum, <code class="prettyprint">ethereumUint256</code> for writing unsigned integer into Ethereum, <code class="prettyprint">httpGetJSON</code> for retrieving JSON across the web, and <code class="prettyprint">bitcoinComparisonJSON</code> for releasing Bitcoin escrow based on the values of JSON APIs. For more information on setting up custom adapters, see the section on <a href="/#adapter-integration">creating an adapter</a>.</p>
 
 <h3 id="subtasks">Subtasks</h3>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
