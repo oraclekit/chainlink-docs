@@ -77,7 +77,7 @@ Assignments are the core of the Smart Oracle model, they are the specifications 
 ### Adapter Type and Parameters
 Every assignment has a type, which specifies the kind of adapter the oracle will use to perform the work requested. Each different type of adapter requires different parameters, some passed on the blockchain, some passed off chain. The parameters each adapter will accept are specified ahead of time by the adapter's creator.
 
-The current Smart Oracle ships with several built in adapters: `ethereumBytes32` for writing strings into Ethereum, `ethereumUint256` for writing uints into Ethereum, `httpGetJSON` for retrieving JSON across the web, and `bitcoinComparisonJSON` for releasing Bitcoin escrow based on the values of JSON APIs. For more information on setting up custom adapters, see the section on [creating an adapter](/#adapter-integration).
+The current Smart Oracle ships with several built in adapters: `ethereumBytes32` for writing strings into Ethereum, `ethereumInt256` for writing signed integers into Ethereum, `ethereumUint256` for writing unsigned integer into Ethereum, `httpGetJSON` for retrieving JSON across the web, and `bitcoinComparisonJSON` for releasing Bitcoin escrow based on the values of JSON APIs. For more information on setting up custom adapters, see the section on [creating an adapter](/#adapter-integration).
 
 ### Subtasks
 ```json
