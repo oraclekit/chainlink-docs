@@ -97,20 +97,36 @@ adapterType | string | identifies the type of work to be done
 adapterParams | object | a JSON object meeting the requirements of the adapter's schema, setting the initial configuration for the adapter
 
 ### Scheduling
+Some oracle services are needed on a scheduled basis. For these use cases, the Smart Oracle a simple way to schedule tasks based on the [Cron](https://en.wikipedia.org/wiki/Cron) scheduling format, or specify specific times to run at.
+
+Assignments that do not require a schedule, instead work on demand, can skip the schedule or offer a combination of both on demand updates and scheduled updates.
+
+All assignments require a end time and allow for an optional start time, defaulting to the assignment start time. Times are specified using Unix timestamps(UTC).
+
 ```json
 {
-  "minute": "*",
-  "hour": "*",
+  "minute": "1",
+  "hour": "17",
   "dayOfMonth": "*",
   "monthOfYear": "*",
   "dayOfWeek": "*",
   "startAt": "1477941966",
-  "endAt": "1793474734"
+  "endAt": "1793474734",
+  "runAt": ["1518726087", "1802722889"]
 }
 ```
-Some oracle services are needed on a scheduled basis. For these use cases, the Smart Oracle a simple way to schedule tasks based on the [Cron](https://en.wikipedia.org/wiki/Cron) scheduling format.
 
-Assignments that do not require a schedule, instead working "on demand," can skip the schedule or offer a combination of both. All assignments require a start time and allow for an optional start time. Times are specified using Unix timestamps(UTC).
+Parameter | Type | Description
+---- | ----- | --------
+minute | string | cron style minute listing for how often to run recurring snapshots
+hour | string | cron style hour listing for how often to run recurring snapshots
+dayOfMonth | string | cron style day of month listing for how often to run recurring snapshots
+monthOfYear | string | cron style month of year listing for how often to run recurring snapshots
+dayOfWeek | string | cron style day of week listing for how often to run recurring snapshots
+startAt | string | a unix timestamp for when to start the recurring snapshot schedule. Optional defaults to the time the assignment is created.
+endAt | string | a unix timestamp for when to end the recurring snapshot schedule
+runAt | array | an array of unix timestamps for discrete update times
+
 
 ### Payment
 ```json
