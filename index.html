@@ -211,20 +211,72 @@ docker run -it --env-file<span class="o">=</span>.env smartcontract/smartoracle 
 </tbody></table>
 
 <h3 id="scheduling">Scheduling</h3>
+
+<p>Some oracle services are needed on a scheduled basis. For these use cases, the Smart Oracle a simple way to schedule tasks based on the <a href="https://en.wikipedia.org/wiki/Cron">Cron</a> scheduling format, or specify specific times to run at.</p>
+
+<p>Assignments that do not require a schedule, instead work on demand, can skip the schedule or offer a combination of both on demand updates and scheduled updates.</p>
+
+<p>All assignments require a end time and allow for an optional start time, defaulting to the assignment start time. Times are specified using Unix timestamps(UTC).</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"minute"</span><span class="p">:</span><span class="w"> </span><span class="s2">"*"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"hour"</span><span class="p">:</span><span class="w"> </span><span class="s2">"*"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"minute"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"hour"</span><span class="p">:</span><span class="w"> </span><span class="s2">"17"</span><span class="p">,</span><span class="w">
   </span><span class="nt">"dayOfMonth"</span><span class="p">:</span><span class="w"> </span><span class="s2">"*"</span><span class="p">,</span><span class="w">
   </span><span class="nt">"monthOfYear"</span><span class="p">:</span><span class="w"> </span><span class="s2">"*"</span><span class="p">,</span><span class="w">
   </span><span class="nt">"dayOfWeek"</span><span class="p">:</span><span class="w"> </span><span class="s2">"*"</span><span class="p">,</span><span class="w">
   </span><span class="nt">"startAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1477941966"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"endAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1793474734"</span><span class="w">
+  </span><span class="nt">"endAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1793474734"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"runAt"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"1518726087"</span><span class="p">,</span><span class="w"> </span><span class="s2">"1802722889"</span><span class="p">]</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<p>Some oracle services are needed on a scheduled basis. For these use cases, the Smart Oracle a simple way to schedule tasks based on the <a href="https://en.wikipedia.org/wiki/Cron">Cron</a> scheduling format.</p>
-
-<p>Assignments that do not require a schedule, instead working &ldquo;on demand,&rdquo; can skip the schedule or offer a combination of both. All assignments require a start time and allow for an optional start time. Times are specified using Unix timestamps(UTC).</p>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>minute</td>
+<td>string</td>
+<td>cron style minute listing for how often to run recurring snapshots</td>
+</tr>
+<tr>
+<td>hour</td>
+<td>string</td>
+<td>cron style hour listing for how often to run recurring snapshots</td>
+</tr>
+<tr>
+<td>dayOfMonth</td>
+<td>string</td>
+<td>cron style day of month listing for how often to run recurring snapshots</td>
+</tr>
+<tr>
+<td>monthOfYear</td>
+<td>string</td>
+<td>cron style month of year listing for how often to run recurring snapshots</td>
+</tr>
+<tr>
+<td>dayOfWeek</td>
+<td>string</td>
+<td>cron style day of week listing for how often to run recurring snapshots</td>
+</tr>
+<tr>
+<td>startAt</td>
+<td>string</td>
+<td>a unix timestamp for when to start the recurring snapshot schedule. Optional defaults to the time the assignment is created.</td>
+</tr>
+<tr>
+<td>endAt</td>
+<td>string</td>
+<td>a unix timestamp for when to end the recurring snapshot schedule</td>
+</tr>
+<tr>
+<td>runAt</td>
+<td>array</td>
+<td>an array of unix timestamps for discrete update times</td>
+</tr>
+</tbody></table>
 
 <h3 id="payment">Payment</h3>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
