@@ -1,1 +1,1 @@
-### Documentation for [smartoracles.github.io/api-docs](https://smartoracles.github.io/api-docs).
+### Documentation for [smartoracle.smartcontract.com](https://smartoracle.smartcontract.com).
