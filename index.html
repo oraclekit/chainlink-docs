@@ -127,7 +127,7 @@
 
 <h2 id="installation">Installation</h2>
 
-<p>First set up your configuration, by creating a <code class="prettyprint">.env</code> file, that has at least the variables set in the <a href="https://github.com/smartoracles/core-ruby/blob/master/.env.example">.env.example</a>. You will need a URL for a running instance of Postgres and URL for an Ethereum connected node.</p>
+<p>First set up your configuration, by creating a <code class="prettyprint">.env</code> file, that has at least the variables set in the <a href="https://github.com/oraclekit/smart_oracle/blob/master/.env.example">.env.example</a>. You will need a URL for a running instance of Postgres and a URL pointing to the JSON-RPC interface of a running Ethereum node.</p>
 <pre class="highlight shell"><code>docker pull smartcontract/smartoracle
 docker run -it --env-file<span class="o">=</span>.env smartcontract/smartoracle rake oracle:initialize
 </code></pre>
@@ -138,7 +138,7 @@ docker run -it --env-file<span class="o">=</span>.env smartcontract/smartoracle 
 <pre class="highlight shell"><code>docker run -t --env-file<span class="o">=</span>.env smartcontract/smartoracle
 </code></pre>
 
-<p>After setting up your configuration, pull down the oracle image and use the configuration to get your database set up.</p>
+<p>Once you have set up your database and configuration, and you are ready to initialize your oracle.</p>
 
 <p>On initialization, the oracle will give the option to print the first list of coordinator credentials. Be sure to record the coordinator credentials for use with the oracle moving forward.</p>
 
