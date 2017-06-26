@@ -609,6 +609,13 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 <p>Parses a GET request to a JSON API, compares the parsed value to the value passed into the configuration. Returns the signature of a Bitcoin transaction. If the comparison succeeds then adapter signs the success transaction, if the comparison does not succeed, no transaction is signed. If the deadline for the assignment passes, then the failure transaction is signed.</p>
 
 <h3 id="configuration">Configuration</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"comparison"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&gt;"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"endpoint"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://bitstamp.net/api/ticker/"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"last"</span><span class="p">],</span><span class="w">
+  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10000"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
@@ -636,6 +643,42 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 <td>value</td>
 <td>string</td>
 <td>The base value which is compared to they dynamic value. If possible the base value is coerced to the type of the dynamic value, if it is not possible the comparison is treated as false and an empty value is returned.</td>
+</tr>
+</tbody></table>
+
+<h3 id="update-input">Update Input</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>_value</td>
+<td>string</td>
+<td>(optional) Input parameters are not used by this adapter.</td>
+</tr>
+</tbody></table>
+
+<h3 id="update-output">Update Output</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mf">2393.45</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>value</td>
+<td>string</td>
+<td>The value parsed out of the JSON API.</td>
 </tr>
 </tbody></table>
 
