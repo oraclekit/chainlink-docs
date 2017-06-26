@@ -687,6 +687,11 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 <p>Formats the input as Ethereum bytes32 value and writes it into the specified contract. Deploys an oracle contract that is updated if a contract address is not provided. Returns the input value converted to a string and shortened to 32 characters, and the transaction ID of the update issued.</p>
 
 <h3 id="configuration">Configuration</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x27B07c528de014E58AeEE3eaa0805a9b0f33fB1F"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"functionID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d529c153"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
@@ -708,6 +713,10 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 </tbody></table>
 
 <h3 id="update-input">Update Input</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2364.45"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
@@ -724,6 +733,11 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 </tbody></table>
 
 <h3 id="update-output">Update Output</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2364.45"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"txid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x3c5c7bd7e7be9d4e264b43f8f1c617c57ec93110576cdad171a76da988525478"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
@@ -751,6 +765,13 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 <p><code class="prettyprint">ethereumFormatted</code> can also be used as an alarm clock, which is preconfigured to call a function on a transaction.</p>
 
 <h3 id="configuration">Configuration</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x27B07c528de014E58AeEE3eaa0805a9b0f33fB1F"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"functionID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d529c153"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="s2">"58ea975797ad9184869ce4a9505d02517b4faa5dc4de751fdabda9552b0ce514"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"amount"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000000000000000000</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
@@ -772,16 +793,20 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 <tr>
 <td>data</td>
 <td>string</td>
-<td>(optional) Hex value to be sent in. This value is used as a fallback if no input value is passed in.</td>
+<td>(optional) Hexadecimal value to be sent in. This value is used as a fallback if no input value is passed in from the adapter pipeline.</td>
 </tr>
 <tr>
 <td>amount</td>
-<td>string</td>
+<td>integer</td>
 <td>(optional) Amount of Ether to send to the contract along with the data.</td>
 </tr>
 </tbody></table>
 
 <h3 id="update-input">Update Input</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b4346adc850180266e030900a53167290c77e1bbaaf9b550dcf5b6d5f630a63e"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
@@ -798,6 +823,11 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 </tbody></table>
 
 <h3 id="update-output">Update Output</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b4346adc850180266e030900a53167290c77e1bbaaf9b550dcf5b6d5f630a63e"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"txid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x99a4ded175f0c6adc2edfb0a06da412f4201816d50fc1eb8d9bbfb19cd227bf3"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
@@ -825,6 +855,12 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 <p>Due to constraints in the EVM, decimal value were not represented. The <code class="prettyprint">resultMultiplier</code> parameter is an optional parameter to address that. If an input value has a decimal, the multiplier allows you to capture the decimal information by multiplying the value and increasing it orders of magnitude. For example if an API for Bitcoin price in US Dollars returns cents, you can set the multiplier to <code class="prettyprint">100</code>, and the value <code class="prettyprint">2452.75</code> will be converted to <code class="prettyprint">245275</code>. By default the value is set to <code class="prettyprint">1</code>.</p>
 
 <h3 id="configuration">Configuration</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x27B07c528de014E58AeEE3eaa0805a9b0f33fB1F"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"functionID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d529c153"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"resultMultiplier"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
@@ -851,6 +887,10 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 </tbody></table>
 
 <h3 id="update-input">Update Input</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2364.45"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
@@ -867,6 +907,11 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 </tbody></table>
 
 <h3 id="update-output">Update Output</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2364.45"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"txid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x3c5c7bd7e7be9d4e264b43f8f1c617c57ec93110576cdad171a76da988525478"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
@@ -896,6 +941,11 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 <p>Useful for creating &ldquo;pull&rdquo; based oracles where the oracle values are requested on demand.</p>
 
 <h3 id="configuration">Configuration</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x85A11A056D27c822fF1B9a429488EfCF9b5A8fa3"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"topics"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"da39f17b584e804a6da2d1f5cd7428a108623a03167d8b5f3c1af14b0d34e021"</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
@@ -907,22 +957,12 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 <tr>
 <td>address</td>
 <td>string</td>
-<td>Ethereum address to send the data to.</td>
+<td>Ethereum address to watch for logs.</td>
 </tr>
 <tr>
-<td>functionID</td>
+<td>topics</td>
 <td>string</td>
-<td>Ethereum function ID to send the data to.</td>
-</tr>
-<tr>
-<td>data</td>
-<td>string</td>
-<td>(optional) Hex value to be sent in. This value is used as a fallback if no input value is passed in.</td>
-</tr>
-<tr>
-<td>amount</td>
-<td>string</td>
-<td>(optional) Amount of Ether to send to the contract along with the data.</td>
+<td>Event topics to watch for in logs.</td>
 </tr>
 </tbody></table>
 
@@ -936,13 +976,25 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 </tr>
 </thead><tbody>
 <tr>
-<td>value</td>
+<td>_value</td>
 <td>string</td>
-<td>Hexadecimal value that will be sent in to the Ethereum contract. Requires the value already be formatted as hex.</td>
+<td>(optional) Input parameters are not used by this adapter.</td>
 </tr>
 </tbody></table>
 
 <h3 id="update-output">Update Output</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x732777E1d2940CC7f1c6F1eff0c62Aa7844F7623"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"blockHash"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x7932fe0c2500450b41389caac75b086a10ffefff4a6b5f637d00988f9f7f810d"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"blockNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">485196</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0xe51ee529abdd443102533e0f12537b3f09789b73f9381d42c0bdb11818b724c8"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"logIndex"</span><span class="p">:</span><span class="w"> </span><span class="mi">67</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"topics"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"0xa81633b25c7ee4172722e6586eb1c6faf5b196dd75fc874d636fde119f9df31f"</span><span class="p">],</span><span class="w">
+  </span><span class="nt">"transactionHash"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0xeac26ca07de6a0c44d1ccb54c77ac50ff8f5179749512bc167e796950dc5a220"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"transactionIndex"</span><span class="p">:</span><span class="w"> </span><span class="mi">87</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0xe51ee529abdd443102533e0f12537b3f09789b73f9381d42c0bdb11818b724c8"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
@@ -952,14 +1004,49 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 </tr>
 </thead><tbody>
 <tr>
-<td>value</td>
+<td>address</td>
 <td>string</td>
-<td>The hexadecimal input value passed in.</td>
+<td>Ethereum address where the log was generated.</td>
 </tr>
 <tr>
-<td>txid</td>
+<td>blockHash</td>
 <td>string</td>
-<td>ID of the transaction that was written into Ethereum to create the update.</td>
+<td>Hash of the block which generated the log.</td>
+</tr>
+<tr>
+<td>blockNumber</td>
+<td>integer</td>
+<td>Block height at the time the log was generated.</td>
+</tr>
+<tr>
+<td>data</td>
+<td>string</td>
+<td>Hexadecimal representation of the values logged by the event.</td>
+</tr>
+<tr>
+<td>logIndex</td>
+<td>integer</td>
+<td>Count of logs occuring before the reported log in the transaction.</td>
+</tr>
+<tr>
+<td>topics</td>
+<td>array</td>
+<td>List of topics that the log indicated as relevant.</td>
+</tr>
+<tr>
+<td>transactionHash</td>
+<td>string</td>
+<td>Identifier of the tranasaction which generated the log.</td>
+</tr>
+<tr>
+<td>transactionIndex</td>
+<td>integer</td>
+<td>Position of the transaction within the block that recorded the log.</td>
+</tr>
+<tr>
+<td>value</td>
+<td>string</td>
+<td>Hexadecimal representation of the values logged by the event. (Same as <code class="prettyprint">data</code>.)</td>
 </tr>
 </tbody></table>
 
@@ -970,6 +1057,12 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 <p>Due to constraints in the EVM, decimal value were not represented. The <code class="prettyprint">resultMultiplier</code> parameter is an optional parameter to address that. If an input value has a decimal, the multiplier allows you to capture the decimal information by multiplying the value and increasing it orders of magnitude. For example if an API for Bitcoin price in US Dollars returns cents, you can set the multiplier to <code class="prettyprint">100</code>, and the value <code class="prettyprint">2452.75</code> will be converted to <code class="prettyprint">245275</code>. By default the value is set to <code class="prettyprint">1</code>.</p>
 
 <h3 id="configuration">Configuration</h3>
+<pre class="highlight json"><code><span class="w">  </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x27B07c528de014E58AeEE3eaa0805a9b0f33fB1F"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"functionID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d529c153"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"resultMultiplier"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
@@ -996,6 +1089,10 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 </tbody></table>
 
 <h3 id="update-input">Update Input</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2364.45"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
@@ -1012,6 +1109,11 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 </tbody></table>
 
 <h3 id="update-output">Update Output</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2364.45"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"txid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x3c5c7bd7e7be9d4e264b43f8f1c617c57ec93110576cdad171a76da988525478"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
@@ -1039,6 +1141,16 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 <p>Parses a specific field out of the response of a GET request to a JSON API.</p>
 
 <h3 id="configuration">Configuration</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"recent"</span><span class="p">,</span><span class="w"> </span><span class="s2">"0"</span><span class="p">,</span><span class="w"> </span><span class="s2">"price"</span><span class="p">],</span><span class="w">
+  </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://api.example.com/feed"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"basicAuth"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"satoshi"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"I&lt;3Ethereum"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"headers"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
@@ -1048,14 +1160,14 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 </tr>
 </thead><tbody>
 <tr>
-<td>url</td>
-<td>string</td>
-<td>The URL that the JSON is pulled from.</td>
-</tr>
-<tr>
 <td>fields</td>
 <td>array</td>
 <td>The key path to follow to get the value to compare with the base value.</td>
+</tr>
+<tr>
+<td>url</td>
+<td>string</td>
+<td>The URL that the JSON is pulled from.</td>
 </tr>
 <tr>
 <td>basicAuth</td>
@@ -1086,6 +1198,10 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 </tbody></table>
 
 <h3 id="update-output">Update Output</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2350.00"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
@@ -1110,6 +1226,10 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 <p>Useful for creating &ldquo;pull&rdquo; based oracles where the oracle values are requested on demand.</p>
 
 <h3 id="configuration">Configuration</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"recent"</span><span class="p">,</span><span class="w"> </span><span class="s2">"0"</span><span class="p">,</span><span class="w"> </span><span class="s2">"price"</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
@@ -1142,6 +1262,15 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 </tbody></table>
 
 <h3 id="update-output">Update Output</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"recent"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+      </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mf">2352.38</span><span class="w">
+    </span><span class="p">}]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mf">2352.38</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
@@ -1151,14 +1280,14 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 </tr>
 </thead><tbody>
 <tr>
-<td>value</td>
-<td>string</td>
-<td>The value parsed out of the JSON API.</td>
-</tr>
-<tr>
 <td>details</td>
 <td>object</td>
 <td>The full JSON payload passed into the oracle API endpoint.</td>
+</tr>
+<tr>
+<td>value</td>
+<td>string</td>
+<td>The value parsed out of the JSON API.</td>
 </tr>
 </tbody></table>
 
