@@ -316,103 +316,11 @@ value | string | the latest value returned by the adapter
 xid | string | a unique external ID to identify the snapshot by
 
 
-# Coordinator Updates
-
-Once an assignment is created, it will automatically run and update itself based on its schedule and the logic in the adapter. Updates cannot be fed in by the coordinator, but the coordinator can receive push notifications whenever the assignment is updated. Simply set the URL of the assignment's coordinator to receive push notifications.
-
-All push notifications are authorized with the same credentials used to create the assignment.
-
-## Create Assignment Oracle
-```json
-{
-  "oracle": {
-    "address": "0x72c8379f845bb3cb30e02ef1feb84742debc1efb",
-    "jsonABI": "contract Oracle {\n  bytes32 currentValue;\n  address creator;\n\n  function Oracle() {\n    creator = msg.sender;\n  }\n\n  function update(bytes32 newCurrent) {\n    if (msg.sender != creator) return;\n    currentValue = newCurrent;\n  }\n\n  function current() constant returns (bytes32 current) {\n    return currentValue;\n  }\n\n  function () constant returns (bytes32 current) {\n    return currentValue;\n  }\n}",
-    "readAddress": "9fa6a6e3",
-    "solidityABI": "contract Oracle{function Oracle();function update(bytes32 newCurrent);function current()constant returns(bytes32 current);}"
-  },
-  "xid": "f0577c3e-9e5a-4840-9c9b-37d326c3d2e3"
-}
-```
-
-`POST` to `/assignments/:xid/instructions`
-
-If an assignment needs some on-chain setup, it cannot immediately respond with all of its integration details on creation, it needs to wait for the blockchain confirmations before. Once the confirmations needed for the assignment set up have occured, the oracle will push integration instructions to the coordinator.
-
-Parameter | Type | Description
----- | ----- | --------
-address | string | Ethereum address location
-jsonABI | string | a stringified version of the JSON ABI for the contract
-readAddress | string | the hash for the read function of the Ethereum contract
-solidityABI | string | the Solidity ABI to include in a contract using this oracle
-xid | string | the XID of the related assignment
-
-
-## Create Assignment Snapshot
-
-```json
-{
-  "assignmentXID": "f0577c3e-9e5a-4840-9c9b-37d326c3d2e3",
-  "description": "Blockchain ID: 0x5803d6bb728b002d5a9aedc2eebec404fcbc2e2966f5e81abe297995b2980046",
-  "descriptionURL": "https://testnet.etherscan.io/tx/0x5803d6bb728b002d5a9aedc2eebec404fcbc2e2966f5e81abe297995b2980046",
-  "details": {
-    "current": "10000000034567123",
-    "total": "98700000035511224"
-  },
-  "status": "in progress",
-  "summary": "Assignment 'f0577c3e-9e5a-4840-9c9b-37d326c3d2e3' updated its value to \"1,000,000.00\"",
-  "value": "1,000,000.00",
-  "xid": "0x5803d6bb728b002d5a9aedc2eebec404fcbc2e2966f5e81abe297995b2980046"
-}
-```
-
-`POST` to `/assignments/:assignment_xid/snapshots`
-
-Each time the assignment is updated it creates a snapshot. A snapshot is the current status of the assignment. Whenever a snapshot is created, it is pushed to the coordinator. Further information is provided in machine readable form in the `details` section, in various formats depending on the adapter. Information is provided in human readable form in the `summary` and `description` fields, as well as the `descriptionURL`.
-
-Parameter | Type | Description
----- | ----- | --------
-assignmentXID | string | the XID of the related assignment
-description | string | a detailed human readable description of the snapshot
-descriptionURL | string | a supporting URL relating to the update
-details | object | a JSON object of extra supporting information returned by the adapter
-status | string | a description of the assignment's current status
-summary | string | a short human readable summary of the snapshot
-value | string | the latest value returned by the adapter
-xid | string | a unique external ID to identify the snapshot by
-
-<aside class="success">
-Snapshot IDs are unique, you should never receive duplicate snapshots.
-</aside>
-
-## Update Assignment
-
-```json
-{
-  "signatures": ["30450221009f4e3e0ab2ede2ca57a03ea67f6d16641568b214e38b650db95cd3490b3f213902202b8ba93235c6cafa4f8a643c72977427e8fde95a2e8010cb3336125182d62cef"],
-  "status": "completed",
-  "xid": "f0577c3e-9e5a-4840-9c9b-37d326c3d2e3"
-}
-```
-
-`PATCH` to `/assignments/:xid`
-
-When the assignment is finished, a notification will be pushed to the coordinator. If any signatures were needed from the oracle, for things like releasing Bitcoin escrow, a signature is returned in addition to a status update.
-
-Parameter | Type | Description
----- | ----- | --------
-signatures | array(string) | if a signature is required, like for Bitcoin escrow, it returns a signature for the outcome that was determined
-status | string | Either "completed" or "failed"
-xid | string | the XID of the related assignment
-
-
-# Adapters
-
-Adapters are where all the actual computation for the oracle happens. The Smart Oracle ships with several adapters, known as Core Adapters. External Adapters can be configured if you would like to configure custom behavior and computation.
-
 # Core Adapters
 
 Core Adapters are the built in adapters that ship with the Smart Oracle. Below are the types of adapters available out of the box:
+
+[External Adapters](#external-adapters) can be configured if you would like to configure custom behavior and computation.
 
 ## bitcoinComparisonJSON
 
@@ -720,3 +628,96 @@ status | string | a description of the assignment's current status
 summary | string | a short human readable summary of the snapshot
 value | string | the latest value returned by the adapter
 xid | string | a unique external ID to identify the snapshot by
+k Coordinator Updates
+
+Once an assignment is created, it will automatically run and update itself based on its schedule and the logic in the adapter. Updates cannot be fed in by the coordinator, but the coordinator can receive push notifications whenever the assignment is updated. Simply set the URL of the assignment's coordinator to receive push notifications.
+
+
+# Coordinator Updates
+
+All push notifications are authorized with the same credentials used to create the assignment.
+
+## Create Assignment Oracle
+```json
+{
+  "oracle": {
+    "address": "0x72c8379f845bb3cb30e02ef1feb84742debc1efb",
+    "jsonABI": "contract Oracle {\n  bytes32 currentValue;\n  address creator;\n\n  function Oracle() {\n    creator = msg.sender;\n  }\n\n  function update(bytes32 newCurrent) {\n    if (msg.sender != creator) return;\n    currentValue = newCurrent;\n  }\n\n  function current() constant returns (bytes32 current) {\n    return currentValue;\n  }\n\n  function () constant returns (bytes32 current) {\n    return currentValue;\n  }\n}",
+    "readAddress": "9fa6a6e3",
+    "solidityABI": "contract Oracle{function Oracle();function update(bytes32 newCurrent);function current()constant returns(bytes32 current);}"
+  },
+  "xid": "f0577c3e-9e5a-4840-9c9b-37d326c3d2e3"
+}
+```
+
+`POST` to `/assignments/:xid/instructions`
+
+If an assignment needs some on-chain setup, it cannot immediately respond with all of its integration details on creation, it needs to wait for the blockchain confirmations before. Once the confirmations needed for the assignment set up have occured, the oracle will push integration instructions to the coordinator.
+
+Parameter | Type | Description
+---- | ----- | --------
+address | string | Ethereum address location
+jsonABI | string | a stringified version of the JSON ABI for the contract
+readAddress | string | the hash for the read function of the Ethereum contract
+solidityABI | string | the Solidity ABI to include in a contract using this oracle
+xid | string | the XID of the related assignment
+
+
+## Create Assignment Snapshot
+
+```json
+{
+  "assignmentXID": "f0577c3e-9e5a-4840-9c9b-37d326c3d2e3",
+  "description": "Blockchain ID: 0x5803d6bb728b002d5a9aedc2eebec404fcbc2e2966f5e81abe297995b2980046",
+  "descriptionURL": "https://testnet.etherscan.io/tx/0x5803d6bb728b002d5a9aedc2eebec404fcbc2e2966f5e81abe297995b2980046",
+  "details": {
+    "current": "10000000034567123",
+    "total": "98700000035511224"
+  },
+  "status": "in progress",
+  "summary": "Assignment 'f0577c3e-9e5a-4840-9c9b-37d326c3d2e3' updated its value to \"1,000,000.00\"",
+  "value": "1,000,000.00",
+  "xid": "0x5803d6bb728b002d5a9aedc2eebec404fcbc2e2966f5e81abe297995b2980046"
+}
+```
+
+`POST` to `/assignments/:assignment_xid/snapshots`
+
+Each time the assignment is updated it creates a snapshot. A snapshot is the current status of the assignment. Whenever a snapshot is created, it is pushed to the coordinator. Further information is provided in machine readable form in the `details` section, in various formats depending on the adapter. Information is provided in human readable form in the `summary` and `description` fields, as well as the `descriptionURL`.
+
+Parameter | Type | Description
+---- | ----- | --------
+assignmentXID | string | the XID of the related assignment
+description | string | a detailed human readable description of the snapshot
+descriptionURL | string | a supporting URL relating to the update
+details | object | a JSON object of extra supporting information returned by the adapter
+status | string | a description of the assignment's current status
+summary | string | a short human readable summary of the snapshot
+value | string | the latest value returned by the adapter
+xid | string | a unique external ID to identify the snapshot by
+
+<aside class="success">
+Snapshot IDs are unique, you should never receive duplicate snapshots.
+</aside>
+
+## Update Assignment
+
+```json
+{
+  "signatures": ["30450221009f4e3e0ab2ede2ca57a03ea67f6d16641568b214e38b650db95cd3490b3f213902202b8ba93235c6cafa4f8a643c72977427e8fde95a2e8010cb3336125182d62cef"],
+  "status": "completed",
+  "xid": "f0577c3e-9e5a-4840-9c9b-37d326c3d2e3"
+}
+```
+
+`PATCH` to `/assignments/:xid`
+
+When the assignment is finished, a notification will be pushed to the coordinator. If any signatures were needed from the oracle, for things like releasing Bitcoin escrow, a signature is returned in addition to a status update.
+
+Parameter | Type | Description
+---- | ----- | --------
+signatures | array(string) | if a signature is required, like for Bitcoin escrow, it returns a signature for the outcome that was determined
+status | string | Either "completed" or "failed"
+xid | string | the XID of the related assignment
+
+
