@@ -328,6 +328,15 @@ Parses a GET request to a JSON API, compares the parsed value to the value passe
 
 ### Configuration
 
+```json
+{
+  "comparison": ">",
+  "endpoint": "https://bitstamp.net/api/ticker/",
+  "fields": ["last"],
+  "value": "10000"
+}
+```
+
 Parameter | Type | Description
 ---- | ----- | --------
 comparison | string | The operation used to compare the base value to the dynamic value. Options: `===`, `<`, `>`, or `contains`.
@@ -335,12 +344,36 @@ endpoint | string | The URL that the JSON is pulled from.
 fields | array | The key path to follow to get the value to compare with the base value.
 value | string | The base value which is compared to they dynamic value. If possible the base value is coerced to the type of the dynamic value, if it is not possible the comparison is treated as false and an empty value is returned.
 
+### Update Input
+
+Parameter | Type | Description
+---- | ----- | --------
+_value | string | (optional) Input parameters are not used by this adapter.
+
+### Update Output
+
+```json
+{
+  "value": 2393.45
+}
+```
+
+Parameter | Type | Description
+---- | ----- | --------
+value | string | The value parsed out of the JSON API.
+
 ## ethereumBytes32
 
 Formats the input as Ethereum bytes32 value and writes it into the specified contract. Deploys an oracle contract that is updated if a contract address is not provided. Returns the input value converted to a string and shortened to 32 characters, and the transaction ID of the update issued.
 
 ### Configuration
 
+```json
+{
+  "address": "0x27B07c528de014E58AeEE3eaa0805a9b0f33fB1F",
+  "functionID": "d529c153"
+}
+```
 Parameter | Type | Description
 ---- | ----- | --------
 address | string | (optional) Ethereum address to send the data to, if a contract to update already exists.
@@ -348,11 +381,23 @@ functionID | string | (optional) Ethereum function ID to send the data to, if a 
 
 ### Update Input
 
+```json
+{
+  "value": "2364.45"
+}
+```
+
 Parameter | Type | Description
 ---- | ----- | --------
 value | string | Converted to a string from which the first 32 bytes are pulled and formatted to be written into Ethereum `bytes32` format.
 
 ### Update Output
+```json
+{
+  "value": "2364.45",
+  "txid": "0x3c5c7bd7e7be9d4e264b43f8f1c617c57ec93110576cdad171a76da988525478"
+}
+```
 
 Parameter | Type | Description
 ---- | ----- | --------
@@ -367,20 +412,42 @@ Writes a preformatted Ethereum hexadecimal value into the blockchain as configur
 
 ### Configuration
 
+```json
+{
+  "address": "0x27B07c528de014E58AeEE3eaa0805a9b0f33fB1F",
+  "functionID": "d529c153",
+  "data": "58ea975797ad9184869ce4a9505d02517b4faa5dc4de751fdabda9552b0ce514",
+  "amount": 1000000000000000000
+}
+```
+
 Parameter | Type | Description
 ---- | ----- | --------
 address | string | Ethereum address to send the data to.
 functionID | string | Ethereum function ID to send the data to.
-data | string | (optional) Hex value to be sent in. This value is used as a fallback if no input value is passed in.
-amount | string | (optional) Amount of Ether to send to the contract along with the data.
+data | string | (optional) Hexadecimal value to be sent in. This value is used as a fallback if no input value is passed in from the adapter pipeline.
+amount | integer | (optional) Amount of Ether to send to the contract along with the data.
 
 ### Update Input
+
+```json
+{
+  "value": "b4346adc850180266e030900a53167290c77e1bbaaf9b550dcf5b6d5f630a63e"
+}
+```
 
 Parameter | Type | Description
 ---- | ----- | --------
 value | string | Hexadecimal value that will be sent in to the Ethereum contract. Requires the value already be formatted as hex.
 
 ### Update Output
+
+```json
+{
+  "value": "b4346adc850180266e030900a53167290c77e1bbaaf9b550dcf5b6d5f630a63e",
+  "txid": "0x99a4ded175f0c6adc2edfb0a06da412f4201816d50fc1eb8d9bbfb19cd227bf3"
+}
+```
 
 Parameter | Type | Description
 ---- | ----- | --------
@@ -395,6 +462,14 @@ Due to constraints in the EVM, decimal value were not represented. The `resultMu
 
 ### Configuration
 
+```json
+{
+  "address": "0x27B07c528de014E58AeEE3eaa0805a9b0f33fB1F",
+  "functionID": "d529c153",
+  "resultMultiplier": 100
+}
+```
+
 Parameter | Type | Description
 ---- | ----- | --------
 address | string | (optional) Ethereum address to send the data to, if a contract to update already exists.
@@ -403,11 +478,24 @@ resultMultiplier | integer | (optional) Amount to multiply the value passed in b
 
 ### Update Input
 
+```json
+{
+  "value": "2364.45"
+}
+```
+
 Parameter | Type | Description
 ---- | ----- | --------
 value | string | Multiplied by the `resultMultiplier` and converted to an integer, then formatted to be written into Ethereum `int256` format.
 
 ### Update Output
+
+```json
+{
+  "value": "2364.45",
+  "txid": "0x3c5c7bd7e7be9d4e264b43f8f1c617c57ec93110576cdad171a76da988525478"
+}
+```
 
 Parameter | Type | Description
 ---- | ----- | --------
@@ -424,25 +512,51 @@ Useful for creating "pull" based oracles where the oracle values are requested o
 
 ### Configuration
 
+```json
+{
+  "address": "0x85A11A056D27c822fF1B9a429488EfCF9b5A8fa3",
+  "topics": ["da39f17b584e804a6da2d1f5cd7428a108623a03167d8b5f3c1af14b0d34e021"]
+}
+```
+
 Parameter | Type | Description
 ---- | ----- | --------
-address | string | Ethereum address to send the data to.
-functionID | string | Ethereum function ID to send the data to.
-data | string | (optional) Hex value to be sent in. This value is used as a fallback if no input value is passed in.
-amount | string | (optional) Amount of Ether to send to the contract along with the data.
+address | string | Ethereum address to watch for logs.
+topics | string | Event topics to watch for in logs.
 
 ### Update Input
 
 Parameter | Type | Description
 ---- | ----- | --------
-value | string | Hexadecimal value that will be sent in to the Ethereum contract. Requires the value already be formatted as hex.
+_value | string | (optional) Input parameters are not used by this adapter.
 
 ### Update Output
 
+```json
+{
+  "address": "0x732777E1d2940CC7f1c6F1eff0c62Aa7844F7623",
+  "blockHash": "0x7932fe0c2500450b41389caac75b086a10ffefff4a6b5f637d00988f9f7f810d",
+  "blockNumber": 485196,
+  "data": "0xe51ee529abdd443102533e0f12537b3f09789b73f9381d42c0bdb11818b724c8",
+  "logIndex": 67,
+  "topics": ["0xa81633b25c7ee4172722e6586eb1c6faf5b196dd75fc874d636fde119f9df31f"],
+  "transactionHash": "0xeac26ca07de6a0c44d1ccb54c77ac50ff8f5179749512bc167e796950dc5a220",
+  "transactionIndex": 87,
+  "value": "0xe51ee529abdd443102533e0f12537b3f09789b73f9381d42c0bdb11818b724c8"
+}
+```
+
 Parameter | Type | Description
 ---- | ----- | --------
-value | string | The hexadecimal input value passed in.
-txid | string | ID of the transaction that was written into Ethereum to create the update.
+address | string | Ethereum address where the log was generated.
+blockHash | string | Hash of the block which generated the log.
+blockNumber | integer | Block height at the time the log was generated.
+data | string | Hexadecimal representation of the values logged by the event.
+logIndex | integer | Count of logs occuring before the reported log in the transaction.
+topics | array | List of topics that the log indicated as relevant.
+transactionHash | string | Identifier of the tranasaction which generated the log.
+transactionIndex | integer | Position of the transaction within the block that recorded the log.
+value | string | Hexadecimal representation of the values logged by the event. (Same as `data`.)
 
 ## ethereumUint256
 
@@ -452,6 +566,14 @@ Due to constraints in the EVM, decimal value were not represented. The `resultMu
 
 ### Configuration
 
+```json
+  {
+    "address": "0x27B07c528de014E58AeEE3eaa0805a9b0f33fB1F",
+    "functionID": "d529c153",
+    "resultMultiplier": 100
+  }
+```
+
 Parameter | Type | Description
 ---- | ----- | --------
 address | string | (optional) Ethereum address to send the data to, if a contract to update already exists.
@@ -460,11 +582,24 @@ resultMultiplier | integer | (optional) Amount to multiply the value passed in b
 
 ### Update Input
 
+```json
+{
+  "value": "2364.45"
+}
+```
+
 Parameter | Type | Description
 ---- | ----- | --------
 value | string | Multiplied by the `resultMultiplier` and converted to a positive integer, then formatted to be written into Ethereum `uint256` format.
 
 ### Update Output
+
+```json
+{
+  "value": "2364.45",
+  "txid": "0x3c5c7bd7e7be9d4e264b43f8f1c617c57ec93110576cdad171a76da988525478"
+}
+```
 
 Parameter | Type | Description
 ---- | ----- | --------
@@ -479,10 +614,22 @@ Parses a specific field out of the response of a GET request to a JSON API.
 
 ### Configuration
 
+```json
+{
+  "fields": ["recent", "0", "price"],
+  "url": "https://api.example.com/feed",
+  "basicAuth": {
+    "username": "satoshi",
+    "password": "I<3Ethereum"
+  },
+  "headers": "Content-Type: application/json"
+}
+```
+
 Parameter | Type | Description
 ---- | ----- | --------
-url | string | The URL that the JSON is pulled from.
 fields | array | The key path to follow to get the value to compare with the base value.
+url | string | The URL that the JSON is pulled from.
 basicAuth | object | (optional) JSON Object containing `username` and `password` fields.
 headers | string | (optional) Headers to be included in request.
 
@@ -493,6 +640,12 @@ Parameter | Type | Description
 _value | string | (optional) Input parameters are not used by this adapter.
 
 ### Update Output
+
+```json
+{
+  "value": "2350.00"
+}
+```
 
 Parameter | Type | Description
 ---- | ----- | --------
@@ -508,6 +661,12 @@ Useful for creating "pull" based oracles where the oracle values are requested o
 
 ### Configuration
 
+```json
+{
+  "fields": ["recent", "0", "price"]
+}
+```
+
 Parameter | Type | Description
 ---- | ----- | --------
 fields | array | The key path to follow to get the value to compare with the base value.
@@ -520,10 +679,20 @@ _value | string | (optional) Input parameters are not used by this adapter.
 
 ### Update Output
 
+```json
+{
+  "details": {
+    "recent": [{
+      "price": 2352.38
+    }]
+  },
+  "value": 2352.38
+}
+```
 Parameter | Type | Description
 ---- | ----- | --------
-value | string | The value parsed out of the JSON API.
 details | object | The full JSON payload passed into the oracle API endpoint.
+value | string | The value parsed out of the JSON API.
 
 # External Adapters
 
