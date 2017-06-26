@@ -598,27 +598,52 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 </tr>
 </tbody></table>
 
-<h1 id="coordinator-updates">Coordinator Updates</h1>
+<h1 id="core-adapters">Core Adapters</h1>
 
-<p>Once an assignment is created, it will automatically run and update itself based on its schedule and the logic in the adapter. Updates cannot be fed in by the coordinator, but the coordinator can receive push notifications whenever the assignment is updated. Simply set the URL of the assignment&rsquo;s coordinator to receive push notifications.</p>
+<p>Core Adapters are the built in adapters that ship with the Smart Oracle. Below are the types of adapters available out of the box:</p>
 
-<p>All push notifications are authorized with the same credentials used to create the assignment.</p>
+<p><a href="#external-adapters">External Adapters</a> can be configured if you would like to configure custom behavior and computation.</p>
 
-<h2 id="create-assignment-oracle">Create Assignment Oracle</h2>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"oracle"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x72c8379f845bb3cb30e02ef1feb84742debc1efb"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"jsonABI"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contract Oracle {\n  bytes32 currentValue;\n  address creator;\n\n  function Oracle() {\n    creator = msg.sender;\n  }\n\n  function update(bytes32 newCurrent) {\n    if (msg.sender != creator) return;\n    currentValue = newCurrent;\n  }\n\n  function current() constant returns (bytes32 current) {\n    return currentValue;\n  }\n\n  function () constant returns (bytes32 current) {\n    return currentValue;\n  }\n}"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"readAddress"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9fa6a6e3"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"solidityABI"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contract Oracle{function Oracle();function update(bytes32 newCurrent);function current()constant returns(bytes32 current);}"</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nt">"xid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"f0577c3e-9e5a-4840-9c9b-37d326c3d2e3"</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
+<h2 id="bitcoincomparisonjson">bitcoinComparisonJSON</h2>
 
-<p><code class="prettyprint">POST</code> to <code class="prettyprint">/assignments/:xid/instructions</code></p>
+<p>Parses a GET request to a JSON API, compares the parsed value to the value passed into the configuration. Returns the signature of a Bitcoin transaction. If the comparison succeeds then adapter signs the success transaction, if the comparison does not succeed, no transaction is signed. If the deadline for the assignment passes, then the failure transaction is signed.</p>
 
-<p>If an assignment needs some on-chain setup, it cannot immediately respond with all of its integration details on creation, it needs to wait for the blockchain confirmations before. Once the confirmations needed for the assignment set up have occured, the oracle will push integration instructions to the coordinator.</p>
+<h3 id="configuration">Configuration</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>comparison</td>
+<td>string</td>
+<td>The operation used to compare the base value to the dynamic value. Options: <code class="prettyprint">===</code>, <code class="prettyprint">&lt;</code>, <code class="prettyprint">&gt;</code>, or <code class="prettyprint">contains</code>.</td>
+</tr>
+<tr>
+<td>endpoint</td>
+<td>string</td>
+<td>The URL that the JSON is pulled from.</td>
+</tr>
+<tr>
+<td>fields</td>
+<td>array</td>
+<td>The key path to follow to get the value to compare with the base value.</td>
+</tr>
+<tr>
+<td>value</td>
+<td>string</td>
+<td>The base value which is compared to they dynamic value. If possible the base value is coerced to the type of the dynamic value, if it is not possible the comparison is treated as false and an empty value is returned.</td>
+</tr>
+</tbody></table>
+
+<h2 id="ethereumbytes32">ethereumBytes32</h2>
+
+<p>Formats the input as Ethereum bytes32 value and writes it into the specified contract. Deploys an oracle contract that is updated if a contract address is not provided. Returns the input value converted to a string and shortened to 32 characters, and the transaction ID of the update issued.</p>
+
+<h3 id="configuration">Configuration</h3>
 
 <table><thead>
 <tr>
@@ -630,49 +655,16 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 <tr>
 <td>address</td>
 <td>string</td>
-<td>Ethereum address location</td>
+<td>(optional) Ethereum address to send the data to, if a contract to update already exists.</td>
 </tr>
 <tr>
-<td>jsonABI</td>
+<td>functionID</td>
 <td>string</td>
-<td>a stringified version of the JSON ABI for the contract</td>
-</tr>
-<tr>
-<td>readAddress</td>
-<td>string</td>
-<td>the hash for the read function of the Ethereum contract</td>
-</tr>
-<tr>
-<td>solidityABI</td>
-<td>string</td>
-<td>the Solidity ABI to include in a contract using this oracle</td>
-</tr>
-<tr>
-<td>xid</td>
-<td>string</td>
-<td>the XID of the related assignment</td>
+<td>(optional) Ethereum function ID to send the data to, if a contract to update already exists.</td>
 </tr>
 </tbody></table>
 
-<h2 id="create-assignment-snapshot">Create Assignment Snapshot</h2>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"assignmentXID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"f0577c3e-9e5a-4840-9c9b-37d326c3d2e3"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Blockchain ID: 0x5803d6bb728b002d5a9aedc2eebec404fcbc2e2966f5e81abe297995b2980046"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"descriptionURL"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://testnet.etherscan.io/tx/0x5803d6bb728b002d5a9aedc2eebec404fcbc2e2966f5e81abe297995b2980046"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"current"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10000000034567123"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"total"</span><span class="p">:</span><span class="w"> </span><span class="s2">"98700000035511224"</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"in progress"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Assignment 'f0577c3e-9e5a-4840-9c9b-37d326c3d2e3' updated its value to \"1,000,000.00\""</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1,000,000.00"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"xid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x5803d6bb728b002d5a9aedc2eebec404fcbc2e2966f5e81abe297995b2980046"</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<p><code class="prettyprint">POST</code> to <code class="prettyprint">/assignments/:assignment_xid/snapshots</code></p>
-
-<p>Each time the assignment is updated it creates a snapshot. A snapshot is the current status of the assignment. Whenever a snapshot is created, it is pushed to the coordinator. Further information is provided in machine readable form in the <code class="prettyprint">details</code> section, in various formats depending on the adapter. Information is provided in human readable form in the <code class="prettyprint">summary</code> and <code class="prettyprint">description</code> fields, as well as the <code class="prettyprint">descriptionURL</code>.</p>
+<h3 id="update-input">Update Input</h3>
 
 <table><thead>
 <tr>
@@ -682,88 +674,452 @@ Make sure to grab the XID to refer to the assignment in the future. The assignme
 </tr>
 </thead><tbody>
 <tr>
-<td>assignmentXID</td>
+<td>value</td>
 <td>string</td>
-<td>the XID of the related assignment</td>
+<td>Converted to a string from which the first 32 bytes are pulled and formatted to be written into Ethereum <code class="prettyprint">bytes32</code> format.</td>
+</tr>
+</tbody></table>
+
+<h3 id="update-output">Update Output</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>value</td>
+<td>string</td>
+<td>The input value passed in, converted to string, and then pulled the first 32 bytes.</td>
 </tr>
 <tr>
-<td>description</td>
+<td>txid</td>
 <td>string</td>
-<td>a detailed human readable description of the snapshot</td>
+<td>ID of the transaction that was written into Ethereum to create the update.</td>
+</tr>
+</tbody></table>
+
+<h2 id="ethereumformatted">ethereumFormatted</h2>
+
+<p>Writes a preformatted Ethereum hexadecimal value into the blockchain as configured. Returns the preformatted value that was provided as input.</p>
+
+<p><code class="prettyprint">ethereumFormatted</code> can also be used as an alarm clock, which is preconfigured to call a function on a transaction.</p>
+
+<h3 id="configuration">Configuration</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>address</td>
+<td>string</td>
+<td>Ethereum address to send the data to.</td>
 </tr>
 <tr>
-<td>descriptionURL</td>
+<td>functionID</td>
 <td>string</td>
-<td>a supporting URL relating to the update</td>
+<td>Ethereum function ID to send the data to.</td>
+</tr>
+<tr>
+<td>data</td>
+<td>string</td>
+<td>(optional) Hex value to be sent in. This value is used as a fallback if no input value is passed in.</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>string</td>
+<td>(optional) Amount of Ether to send to the contract along with the data.</td>
+</tr>
+</tbody></table>
+
+<h3 id="update-input">Update Input</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>value</td>
+<td>string</td>
+<td>Hexadecimal value that will be sent in to the Ethereum contract. Requires the value already be formatted as hex.</td>
+</tr>
+</tbody></table>
+
+<h3 id="update-output">Update Output</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>value</td>
+<td>string</td>
+<td>The input value passed in as hexadecimal.</td>
+</tr>
+<tr>
+<td>txid</td>
+<td>string</td>
+<td>ID of the transaction that was written into Ethereum to create the update.</td>
+</tr>
+</tbody></table>
+
+<h2 id="ethereumint256">ethereumInt256</h2>
+
+<p>Formats the input as Ethereum int256 value and writes it into the specified contract. Deploys an oracle contract that is updated if a contract address is not provided. Returns the input value multiplied by the <code class="prettyprint">resultMultiplier</code> and converted to an integer, and the transaction ID of the update issued.</p>
+
+<p>Due to constraints in the EVM, decimal value were not represented. The <code class="prettyprint">resultMultiplier</code> parameter is an optional parameter to address that. If an input value has a decimal, the multiplier allows you to capture the decimal information by multiplying the value and increasing it orders of magnitude. For example if an API for Bitcoin price in US Dollars returns cents, you can set the multiplier to <code class="prettyprint">100</code>, and the value <code class="prettyprint">2452.75</code> will be converted to <code class="prettyprint">245275</code>. By default the value is set to <code class="prettyprint">1</code>.</p>
+
+<h3 id="configuration">Configuration</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>address</td>
+<td>string</td>
+<td>(optional) Ethereum address to send the data to, if a contract to update already exists.</td>
+</tr>
+<tr>
+<td>functionID</td>
+<td>string</td>
+<td>(optional) Ethereum function ID to send the data to, if a contract to update already exists.</td>
+</tr>
+<tr>
+<td>resultMultiplier</td>
+<td>integer</td>
+<td>(optional) Amount to multiply the value passed in by. Allows for decimal value to be increased so that their precision is accounted for by integers. Defaults to 1.</td>
+</tr>
+</tbody></table>
+
+<h3 id="update-input">Update Input</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>value</td>
+<td>string</td>
+<td>Multiplied by the <code class="prettyprint">resultMultiplier</code> and converted to an integer, then formatted to be written into Ethereum <code class="prettyprint">int256</code> format.</td>
+</tr>
+</tbody></table>
+
+<h3 id="update-output">Update Output</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>value</td>
+<td>integer</td>
+<td>The input value passed in mutliplied by the <code class="prettyprint">resultMultiplier</code> and converted to an integer.</td>
+</tr>
+<tr>
+<td>txid</td>
+<td>string</td>
+<td>ID of the transaction that was written into Ethereum to create the update.</td>
+</tr>
+</tbody></table>
+
+<h2 id="ethereumlogwatcher">ethereumLogWatcher</h2>
+
+<p>If an Ethereum event log which matches the configured filters is created, the adapter triggers a new snapshot. Wherever the adapter is in the pipeline, it stores the event log and uses that as the output passes down the pipeline.</p>
+
+<p>If this adapter is present and a snapshot is triggered, but no event log is present, this adapter passes its inputs to the next adapter as its output, unmodified.</p>
+
+<p>Useful for creating &ldquo;pull&rdquo; based oracles where the oracle values are requested on demand.</p>
+
+<h3 id="configuration">Configuration</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>address</td>
+<td>string</td>
+<td>Ethereum address to send the data to.</td>
+</tr>
+<tr>
+<td>functionID</td>
+<td>string</td>
+<td>Ethereum function ID to send the data to.</td>
+</tr>
+<tr>
+<td>data</td>
+<td>string</td>
+<td>(optional) Hex value to be sent in. This value is used as a fallback if no input value is passed in.</td>
+</tr>
+<tr>
+<td>amount</td>
+<td>string</td>
+<td>(optional) Amount of Ether to send to the contract along with the data.</td>
+</tr>
+</tbody></table>
+
+<h3 id="update-input">Update Input</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>value</td>
+<td>string</td>
+<td>Hexadecimal value that will be sent in to the Ethereum contract. Requires the value already be formatted as hex.</td>
+</tr>
+</tbody></table>
+
+<h3 id="update-output">Update Output</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>value</td>
+<td>string</td>
+<td>The hexadecimal input value passed in.</td>
+</tr>
+<tr>
+<td>txid</td>
+<td>string</td>
+<td>ID of the transaction that was written into Ethereum to create the update.</td>
+</tr>
+</tbody></table>
+
+<h2 id="ethereumuint256">ethereumUint256</h2>
+
+<p>Formats the input as Ethereum int256 value and writes it into the specified contract. Deploys an oracle contract that is updated if a contract address is not provided. Returns the input value multiplied by the <code class="prettyprint">resultMultiplier</code> and converted to a positive integer, and the transaction ID of the update issued.</p>
+
+<p>Due to constraints in the EVM, decimal value were not represented. The <code class="prettyprint">resultMultiplier</code> parameter is an optional parameter to address that. If an input value has a decimal, the multiplier allows you to capture the decimal information by multiplying the value and increasing it orders of magnitude. For example if an API for Bitcoin price in US Dollars returns cents, you can set the multiplier to <code class="prettyprint">100</code>, and the value <code class="prettyprint">2452.75</code> will be converted to <code class="prettyprint">245275</code>. By default the value is set to <code class="prettyprint">1</code>.</p>
+
+<h3 id="configuration">Configuration</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>address</td>
+<td>string</td>
+<td>(optional) Ethereum address to send the data to, if a contract to update already exists.</td>
+</tr>
+<tr>
+<td>functionID</td>
+<td>string</td>
+<td>(optional) Ethereum function ID to send the data to, if a contract to update already exists.</td>
+</tr>
+<tr>
+<td>resultMultiplier</td>
+<td>integer</td>
+<td>(optional) Amount to multiply the value passed in by. Allows for decimal value to be increased so that their precision is accounted for by integers. Defaults to 1.</td>
+</tr>
+</tbody></table>
+
+<h3 id="update-input">Update Input</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>value</td>
+<td>string</td>
+<td>Multiplied by the <code class="prettyprint">resultMultiplier</code> and converted to a positive integer, then formatted to be written into Ethereum <code class="prettyprint">uint256</code> format.</td>
+</tr>
+</tbody></table>
+
+<h3 id="update-output">Update Output</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>value</td>
+<td>integer</td>
+<td>The input value passed in mutliplied by the <code class="prettyprint">resultMultiplier</code> and converted to a positive integer.</td>
+</tr>
+<tr>
+<td>txid</td>
+<td>string</td>
+<td>ID of the transaction that was written into Ethereum to create the update.</td>
+</tr>
+</tbody></table>
+
+<h2 id="httpgetjson">httpGetJSON</h2>
+
+<p>Retrieves JSON and returns the specific field selected in the configuration.</p>
+
+<p>Parses a specific field out of the response of a GET request to a JSON API.</p>
+
+<h3 id="configuration">Configuration</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>url</td>
+<td>string</td>
+<td>The URL that the JSON is pulled from.</td>
+</tr>
+<tr>
+<td>fields</td>
+<td>array</td>
+<td>The key path to follow to get the value to compare with the base value.</td>
+</tr>
+<tr>
+<td>basicAuth</td>
+<td>object</td>
+<td>(optional) JSON Object containing <code class="prettyprint">username</code> and <code class="prettyprint">password</code> fields.</td>
+</tr>
+<tr>
+<td>headers</td>
+<td>string</td>
+<td>(optional) Headers to be included in request.</td>
+</tr>
+</tbody></table>
+
+<h3 id="update-input">Update Input</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>_value</td>
+<td>string</td>
+<td>(optional) Input parameters are not used by this adapter.</td>
+</tr>
+</tbody></table>
+
+<h3 id="update-output">Update Output</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>value</td>
+<td>string</td>
+<td>The value parsed out of the JSON API.</td>
+</tr>
+</tbody></table>
+
+<h2 id="jsonreceiver">jsonReceiver</h2>
+
+<p>Generates a URL for the oracle to receive JSON push notifications. Parses the pushed JSON and returns the specific field selected in the configuration.</p>
+
+<p>If this adapter is present and a snapshot is triggered, but no request was made to the API, this adapter passes its inputs to the next adapter as its output, unmodified.</p>
+
+<p>Useful for creating &ldquo;pull&rdquo; based oracles where the oracle values are requested on demand.</p>
+
+<h3 id="configuration">Configuration</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>fields</td>
+<td>array</td>
+<td>The key path to follow to get the value to compare with the base value.</td>
+</tr>
+</tbody></table>
+
+<h3 id="update-input">Update Input</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>_value</td>
+<td>string</td>
+<td>(optional) Input parameters are not used by this adapter.</td>
+</tr>
+</tbody></table>
+
+<h3 id="update-output">Update Output</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>value</td>
+<td>string</td>
+<td>The value parsed out of the JSON API.</td>
 </tr>
 <tr>
 <td>details</td>
 <td>object</td>
-<td>a JSON object of extra supporting information returned by the adapter</td>
-</tr>
-<tr>
-<td>status</td>
-<td>string</td>
-<td>a description of the assignment&rsquo;s current status</td>
-</tr>
-<tr>
-<td>summary</td>
-<td>string</td>
-<td>a short human readable summary of the snapshot</td>
-</tr>
-<tr>
-<td>value</td>
-<td>string</td>
-<td>the latest value returned by the adapter</td>
-</tr>
-<tr>
-<td>xid</td>
-<td>string</td>
-<td>a unique external ID to identify the snapshot by</td>
+<td>The full JSON payload passed into the oracle API endpoint.</td>
 </tr>
 </tbody></table>
 
-<aside class="success">
-Snapshot IDs are unique, you should never receive duplicate snapshots.
-</aside>
-
-<h2 id="update-assignment">Update Assignment</h2>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"signatures"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"30450221009f4e3e0ab2ede2ca57a03ea67f6d16641568b214e38b650db95cd3490b3f213902202b8ba93235c6cafa4f8a643c72977427e8fde95a2e8010cb3336125182d62cef"</span><span class="p">],</span><span class="w">
-  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"completed"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"xid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"f0577c3e-9e5a-4840-9c9b-37d326c3d2e3"</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<p><code class="prettyprint">PATCH</code> to <code class="prettyprint">/assignments/:xid</code></p>
-
-<p>When the assignment is finished, a notification will be pushed to the coordinator. If any signatures were needed from the oracle, for things like releasing Bitcoin escrow, a signature is returned in addition to a status update.</p>
-
-<table><thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>signatures</td>
-<td>array(string)</td>
-<td>if a signature is required, like for Bitcoin escrow, it returns a signature for the outcome that was determined</td>
-</tr>
-<tr>
-<td>status</td>
-<td>string</td>
-<td>Either &ldquo;completed&rdquo; or &ldquo;failed&rdquo;</td>
-</tr>
-<tr>
-<td>xid</td>
-<td>string</td>
-<td>the XID of the related assignment</td>
-</tr>
-</tbody></table>
-
-<h1 id="adapter-integration">Adapter Integration</h1>
+<h1 id="external-adapters">External Adapters</h1>
 
 <p>The Smart Oracle image ships with functionality out of the box to connect Ethereum contracts and Bitcoin escrow to JSON APIs(the lingua franca of the web). But the real power of the Smart Oracle platform lies in its abilitiy to be extended.</p>
 
@@ -1006,6 +1362,171 @@ Snapshot IDs are unique, you should never receive duplicate snapshots.
 <td>xid</td>
 <td>string</td>
 <td>a unique external ID to identify the snapshot by</td>
+</tr>
+</tbody></table>
+
+<p>k Coordinator Updates</p>
+
+<p>Once an assignment is created, it will automatically run and update itself based on its schedule and the logic in the adapter. Updates cannot be fed in by the coordinator, but the coordinator can receive push notifications whenever the assignment is updated. Simply set the URL of the assignment&rsquo;s coordinator to receive push notifications.</p>
+
+<p>All push notifications are authorized with the same credentials used to create the assignment.</p>
+
+<h2 id="create-assignment-oracle">Create Assignment Oracle</h2>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"oracle"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x72c8379f845bb3cb30e02ef1feb84742debc1efb"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"jsonABI"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contract Oracle {\n  bytes32 currentValue;\n  address creator;\n\n  function Oracle() {\n    creator = msg.sender;\n  }\n\n  function update(bytes32 newCurrent) {\n    if (msg.sender != creator) return;\n    currentValue = newCurrent;\n  }\n\n  function current() constant returns (bytes32 current) {\n    return currentValue;\n  }\n\n  function () constant returns (bytes32 current) {\n    return currentValue;\n  }\n}"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"readAddress"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9fa6a6e3"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"solidityABI"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contract Oracle{function Oracle();function update(bytes32 newCurrent);function current()constant returns(bytes32 current);}"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"xid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"f0577c3e-9e5a-4840-9c9b-37d326c3d2e3"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p><code class="prettyprint">POST</code> to <code class="prettyprint">/assignments/:xid/instructions</code></p>
+
+<p>If an assignment needs some on-chain setup, it cannot immediately respond with all of its integration details on creation, it needs to wait for the blockchain confirmations before. Once the confirmations needed for the assignment set up have occured, the oracle will push integration instructions to the coordinator.</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>address</td>
+<td>string</td>
+<td>Ethereum address location</td>
+</tr>
+<tr>
+<td>jsonABI</td>
+<td>string</td>
+<td>a stringified version of the JSON ABI for the contract</td>
+</tr>
+<tr>
+<td>readAddress</td>
+<td>string</td>
+<td>the hash for the read function of the Ethereum contract</td>
+</tr>
+<tr>
+<td>solidityABI</td>
+<td>string</td>
+<td>the Solidity ABI to include in a contract using this oracle</td>
+</tr>
+<tr>
+<td>xid</td>
+<td>string</td>
+<td>the XID of the related assignment</td>
+</tr>
+</tbody></table>
+
+<h2 id="create-assignment-snapshot">Create Assignment Snapshot</h2>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"assignmentXID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"f0577c3e-9e5a-4840-9c9b-37d326c3d2e3"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Blockchain ID: 0x5803d6bb728b002d5a9aedc2eebec404fcbc2e2966f5e81abe297995b2980046"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"descriptionURL"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://testnet.etherscan.io/tx/0x5803d6bb728b002d5a9aedc2eebec404fcbc2e2966f5e81abe297995b2980046"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"current"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10000000034567123"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"total"</span><span class="p">:</span><span class="w"> </span><span class="s2">"98700000035511224"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"in progress"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Assignment 'f0577c3e-9e5a-4840-9c9b-37d326c3d2e3' updated its value to \"1,000,000.00\""</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1,000,000.00"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"xid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0x5803d6bb728b002d5a9aedc2eebec404fcbc2e2966f5e81abe297995b2980046"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p><code class="prettyprint">POST</code> to <code class="prettyprint">/assignments/:assignment_xid/snapshots</code></p>
+
+<p>Each time the assignment is updated it creates a snapshot. A snapshot is the current status of the assignment. Whenever a snapshot is created, it is pushed to the coordinator. Further information is provided in machine readable form in the <code class="prettyprint">details</code> section, in various formats depending on the adapter. Information is provided in human readable form in the <code class="prettyprint">summary</code> and <code class="prettyprint">description</code> fields, as well as the <code class="prettyprint">descriptionURL</code>.</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>assignmentXID</td>
+<td>string</td>
+<td>the XID of the related assignment</td>
+</tr>
+<tr>
+<td>description</td>
+<td>string</td>
+<td>a detailed human readable description of the snapshot</td>
+</tr>
+<tr>
+<td>descriptionURL</td>
+<td>string</td>
+<td>a supporting URL relating to the update</td>
+</tr>
+<tr>
+<td>details</td>
+<td>object</td>
+<td>a JSON object of extra supporting information returned by the adapter</td>
+</tr>
+<tr>
+<td>status</td>
+<td>string</td>
+<td>a description of the assignment&rsquo;s current status</td>
+</tr>
+<tr>
+<td>summary</td>
+<td>string</td>
+<td>a short human readable summary of the snapshot</td>
+</tr>
+<tr>
+<td>value</td>
+<td>string</td>
+<td>the latest value returned by the adapter</td>
+</tr>
+<tr>
+<td>xid</td>
+<td>string</td>
+<td>a unique external ID to identify the snapshot by</td>
+</tr>
+</tbody></table>
+
+<aside class="success">
+Snapshot IDs are unique, you should never receive duplicate snapshots.
+</aside>
+
+<h2 id="update-assignment">Update Assignment</h2>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"signatures"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"30450221009f4e3e0ab2ede2ca57a03ea67f6d16641568b214e38b650db95cd3490b3f213902202b8ba93235c6cafa4f8a643c72977427e8fde95a2e8010cb3336125182d62cef"</span><span class="p">],</span><span class="w">
+  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"completed"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"xid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"f0577c3e-9e5a-4840-9c9b-37d326c3d2e3"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p><code class="prettyprint">PATCH</code> to <code class="prettyprint">/assignments/:xid</code></p>
+
+<p>When the assignment is finished, a notification will be pushed to the coordinator. If any signatures were needed from the oracle, for things like releasing Bitcoin escrow, a signature is returned in addition to a status update.</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>signatures</td>
+<td>array(string)</td>
+<td>if a signature is required, like for Bitcoin escrow, it returns a signature for the outcome that was determined</td>
+</tr>
+<tr>
+<td>status</td>
+<td>string</td>
+<td>Either &ldquo;completed&rdquo; or &ldquo;failed&rdquo;</td>
+</tr>
+<tr>
+<td>xid</td>
+<td>string</td>
+<td>the XID of the related assignment</td>
 </tr>
 </tbody></table>
 
