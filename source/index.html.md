@@ -316,7 +316,6 @@ value | string | the latest value returned by the adapter
 xid | string | a unique external ID to identify the snapshot by
 
 
-
 # Coordinator Updates
 
 Once an assignment is created, it will automatically run and update itself based on its schedule and the logic in the adapter. Updates cannot be fed in by the coordinator, but the coordinator can receive push notifications whenever the assignment is updated. Simply set the URL of the assignment's coordinator to receive push notifications.
@@ -407,7 +406,218 @@ status | string | Either "completed" or "failed"
 xid | string | the XID of the related assignment
 
 
-# Adapter Integration
+# Adapters
+
+Adapters are where all the actual computation for the oracle happens. The Smart Oracle ships with several adapters, known as Core Adapters. External Adapters can be configured if you would like to configure custom behavior and computation.
+
+# Core Adapters
+
+Core Adapters are the built in adapters that ship with the Smart Oracle. Below are the types of adapters available out of the box:
+
+## bitcoinComparisonJSON
+
+Parses a GET request to a JSON API, compares the parsed value to the value passed into the configuration. Returns the signature of a Bitcoin transaction. If the comparison succeeds then adapter signs the success transaction, if the comparison does not succeed, no transaction is signed. If the deadline for the assignment passes, then the failure transaction is signed.
+
+### Configuration
+
+Parameter | Type | Description
+---- | ----- | --------
+comparison | string | The operation used to compare the base value to the dynamic value. Options: `===`, `<`, `>`, or `contains`.
+endpoint | string | The URL that the JSON is pulled from.
+fields | array | The key path to follow to get the value to compare with the base value.
+value | string | The base value which is compared to they dynamic value. If possible the base value is coerced to the type of the dynamic value, if it is not possible the comparison is treated as false and an empty value is returned.
+
+## ethereumBytes32
+
+Formats the input as Ethereum bytes32 value and writes it into the specified contract. Deploys an oracle contract that is updated if a contract address is not provided. Returns the input value converted to a string and shortened to 32 characters, and the transaction ID of the update issued.
+
+### Configuration
+
+Parameter | Type | Description
+---- | ----- | --------
+address | string | (optional) Ethereum address to send the data to, if a contract to update already exists.
+functionID | string | (optional) Ethereum function ID to send the data to, if a contract to update already exists.
+
+### Update Input
+
+Parameter | Type | Description
+---- | ----- | --------
+value | string | Converted to a string from which the first 32 bytes are pulled and formatted to be written into Ethereum `bytes32` format.
+
+### Update Output
+
+Parameter | Type | Description
+---- | ----- | --------
+value | string | The input value passed in, converted to string, and then pulled the first 32 bytes.
+txid | string | ID of the transaction that was written into Ethereum to create the update.
+
+## ethereumFormatted
+
+Writes a preformatted Ethereum hexadecimal value into the blockchain as configured. Returns the preformatted value that was provided as input.
+
+`ethereumFormatted` can also be used as an alarm clock, which is preconfigured to call a function on a transaction.
+
+### Configuration
+
+Parameter | Type | Description
+---- | ----- | --------
+address | string | Ethereum address to send the data to.
+functionID | string | Ethereum function ID to send the data to.
+data | string | (optional) Hex value to be sent in. This value is used as a fallback if no input value is passed in.
+amount | string | (optional) Amount of Ether to send to the contract along with the data.
+
+### Update Input
+
+Parameter | Type | Description
+---- | ----- | --------
+value | string | Hexadecimal value that will be sent in to the Ethereum contract. Requires the value already be formatted as hex.
+
+### Update Output
+
+Parameter | Type | Description
+---- | ----- | --------
+value | string | The input value passed in as hexadecimal.
+txid | string | ID of the transaction that was written into Ethereum to create the update.
+
+## ethereumInt256
+
+Formats the input as Ethereum int256 value and writes it into the specified contract. Deploys an oracle contract that is updated if a contract address is not provided. Returns the input value multiplied by the `resultMultiplier` and converted to an integer, and the transaction ID of the update issued.
+
+Due to constraints in the EVM, decimal value were not represented. The `resultMultiplier` parameter is an optional parameter to address that. If an input value has a decimal, the multiplier allows you to capture the decimal information by multiplying the value and increasing it orders of magnitude. For example if an API for Bitcoin price in US Dollars returns cents, you can set the multiplier to `100`, and the value `2452.75` will be converted to `245275`. By default the value is set to `1`.
+
+### Configuration
+
+Parameter | Type | Description
+---- | ----- | --------
+address | string | (optional) Ethereum address to send the data to, if a contract to update already exists.
+functionID | string | (optional) Ethereum function ID to send the data to, if a contract to update already exists.
+resultMultiplier | integer | (optional) Amount to multiply the value passed in by. Allows for decimal value to be increased so that their precision is accounted for by integers. Defaults to 1.
+
+### Update Input
+
+Parameter | Type | Description
+---- | ----- | --------
+value | string | Multiplied by the `resultMultiplier` and converted to an integer, then formatted to be written into Ethereum `int256` format.
+
+### Update Output
+
+Parameter | Type | Description
+---- | ----- | --------
+value | integer | The input value passed in mutliplied by the `resultMultiplier` and converted to an integer.
+txid | string | ID of the transaction that was written into Ethereum to create the update.
+
+## ethereumLogWatcher
+
+If an Ethereum event log which matches the configured filters is created, the adapter triggers a new snapshot. Wherever the adapter is in the pipeline, it stores the event log and uses that as the output passes down the pipeline.
+
+If this adapter is present and a snapshot is triggered, but no event log is present, this adapter passes its inputs to the next adapter as its output, unmodified.
+
+Useful for creating "pull" based oracles where the oracle values are requested on demand.
+
+### Configuration
+
+Parameter | Type | Description
+---- | ----- | --------
+address | string | Ethereum address to send the data to.
+functionID | string | Ethereum function ID to send the data to.
+data | string | (optional) Hex value to be sent in. This value is used as a fallback if no input value is passed in.
+amount | string | (optional) Amount of Ether to send to the contract along with the data.
+
+### Update Input
+
+Parameter | Type | Description
+---- | ----- | --------
+value | string | Hexadecimal value that will be sent in to the Ethereum contract. Requires the value already be formatted as hex.
+
+### Update Output
+
+Parameter | Type | Description
+---- | ----- | --------
+value | string | The hexadecimal input value passed in.
+txid | string | ID of the transaction that was written into Ethereum to create the update.
+
+## ethereumUint256
+
+Formats the input as Ethereum int256 value and writes it into the specified contract. Deploys an oracle contract that is updated if a contract address is not provided. Returns the input value multiplied by the `resultMultiplier` and converted to a positive integer, and the transaction ID of the update issued.
+
+Due to constraints in the EVM, decimal value were not represented. The `resultMultiplier` parameter is an optional parameter to address that. If an input value has a decimal, the multiplier allows you to capture the decimal information by multiplying the value and increasing it orders of magnitude. For example if an API for Bitcoin price in US Dollars returns cents, you can set the multiplier to `100`, and the value `2452.75` will be converted to `245275`. By default the value is set to `1`.
+
+### Configuration
+
+Parameter | Type | Description
+---- | ----- | --------
+address | string | (optional) Ethereum address to send the data to, if a contract to update already exists.
+functionID | string | (optional) Ethereum function ID to send the data to, if a contract to update already exists.
+resultMultiplier | integer | (optional) Amount to multiply the value passed in by. Allows for decimal value to be increased so that their precision is accounted for by integers. Defaults to 1.
+
+### Update Input
+
+Parameter | Type | Description
+---- | ----- | --------
+value | string | Multiplied by the `resultMultiplier` and converted to a positive integer, then formatted to be written into Ethereum `uint256` format.
+
+### Update Output
+
+Parameter | Type | Description
+---- | ----- | --------
+value | integer | The input value passed in mutliplied by the `resultMultiplier` and converted to a positive integer.
+txid | string | ID of the transaction that was written into Ethereum to create the update.
+
+## httpGetJSON
+
+Retrieves JSON and returns the specific field selected in the configuration.
+
+Parses a specific field out of the response of a GET request to a JSON API.
+
+### Configuration
+
+Parameter | Type | Description
+---- | ----- | --------
+url | string | The URL that the JSON is pulled from.
+fields | array | The key path to follow to get the value to compare with the base value.
+basicAuth | object | (optional) JSON Object containing `username` and `password` fields.
+headers | string | (optional) Headers to be included in request.
+
+### Update Input
+
+Parameter | Type | Description
+---- | ----- | --------
+_value | string | (optional) Input parameters are not used by this adapter.
+
+### Update Output
+
+Parameter | Type | Description
+---- | ----- | --------
+value | string | The value parsed out of the JSON API.
+
+## jsonReceiver
+
+Generates a URL for the oracle to receive JSON push notifications. Parses the pushed JSON and returns the specific field selected in the configuration.
+
+If this adapter is present and a snapshot is triggered, but no request was made to the API, this adapter passes its inputs to the next adapter as its output, unmodified.
+
+Useful for creating "pull" based oracles where the oracle values are requested on demand.
+
+### Configuration
+
+Parameter | Type | Description
+---- | ----- | --------
+fields | array | The key path to follow to get the value to compare with the base value.
+
+### Update Input
+
+Parameter | Type | Description
+---- | ----- | --------
+_value | string | (optional) Input parameters are not used by this adapter.
+
+### Update Output
+
+Parameter | Type | Description
+---- | ----- | --------
+value | string | The value parsed out of the JSON API.
+details | object | The full JSON payload passed into the oracle API endpoint.
+
+# External Adapters
 
 The Smart Oracle image ships with functionality out of the box to connect Ethereum contracts and Bitcoin escrow to JSON APIs(the lingua franca of the web). But the real power of the Smart Oracle platform lies in its abilitiy to be extended.
 
