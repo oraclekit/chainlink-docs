@@ -696,39 +696,78 @@ value | string | The value parsed out of the JSON API.
 
 # External Adapters
 
-ChainLink image ships with functionality out of the box to connect Ethereum contracts and Bitcoin escrow to JSON APIs(the lingua franca of the web). But the real power of the ChainLink platform lies in its abilitiy to be extended.
-
-Adapters can be configured with ChainLink to add functionality. Whether it's a different data format like XML, or special computation, ChainLink makes it possible to further extend off-chain capabilities via adapters.
+ChainLink ships with out of the box functionality, including the ability to connect to Ethereum contracts and Bitcoin escrow released via JSON APIs. The real power of the ChainLink platform lies in its abilitiy to be extended. External Adapters can be configured with ChainLink to add specialized functionality. Whether it parsing a different data format like XML, or special computation, ChainLink makes it possible to further extend off-chain capabilities via adapters.
 
 ### APIs
 
-Adapters integrate with the core in a service oriented model, so they can run locally, next to the core or on remote servers. The minimum integrations an adapter needs to support are based on whether the adapter will push information or the core will pull. The APIs needed to create a custom adapter are listed below.
+External Adapters are currently integrated in a service oriented fashion; they are run separately from the core, and are communicated with via REST APIs. This separation allows External Adapters to be written in whichever language is best suited to the task at hand. Additionally, the service oriented model allows for External Adapters to be either colocated on the same machine using something like Docker Compose, or they can run remotely on servers located on the other side of the world.
+
+This flexiblity is possible via a few simple APIs. Which APIs an External Adapter requires depends on if it will pull or push new Snapshot updates; adapters must conform to at least the push or pull APIs, conforming to both allows for the most flexiblity.
+
+Whether using the push or pull APIs, External Adapters need to format their output in a way that can be consumed by other adapters. This comes down to a few basic fields in JSON, with some optional support for human readability and feedback.
+
+
+Parameter | Type | Description
+---- | ----- | --------
+description | string | a detailed human readable description of the snapshot
+descriptionURL | string | a supporting URL relating to the update
+details | object | a JSON object of extra supporting information returned by the adapter
+summary | string | a short human readable summary of the snapshot
+value | string | the latest value returned by the adapter
+xid | string | a unique external ID to identify the snapshot by
 
 ### Oracle Schema
 
-In order to make an adapter's input and output predictable, adapters need to specify schemas. Schemas are created using a JSON Schema for expected prerequisites and on/off-chain inputs/outputs. See the [specification here](https://github.com/oraclekit/spec).
+In order to make an adapter's input and output predictable, adapters need to specify schemas. Schemas are created using a [JSON Schema](https://json-schema.org) for expected prerequisites and on/off-chain inputs/outputs. See the [specification here](https://github.com/oraclekit/spec), or provide an empty schema to get started quickly. Schemas can be used to check the upfront configuration of an adapter, and the `details` of a snapshot.
 
+### Authentication
+
+When you create you configure your External Adapter with ChainLink, a set of basic auth credentials will be generated for you.
 
 ## Create Assignment
 
 __*Required*__: `POST` to adapter path `/assignments`
 
-The action used for an oracle to pass an assignment over to an adapter.
+The action used for an oracle to pass an assignment to an adapter. The adapter response should include:
 
-The expected response should include:
+```json
+{
+  "xid": "c21bd20f-2439-41e3-831d-d650f3d24e7e",
+  "endAt": 1814134222,
+  "data": {
+    "some": "more information"
+  }
+}
+```
 
 Parameter | Type | Description
 ---- | ----- | --------
 xid | string | the unique identifier to associate an assignment with
-endAt | string | a timestamp in Unix Timestamp(UTC) format.
-data | object | a JSON object containing all information specified in the adapter's schema
+endAt | string | a Unix Timestamp of when the assignment must finish by
+data | object | (optional) Subtask initialization results. Information that can be determined only once the subtask details have been given to the adapter. This will be used as initialization details sent to the coordinator once all subtasks have been initialized.
 
 
 ## Create Snapshot _(Pull)_
 
 `POST` to adapter path `/assignments/:assignment_xid/snapshots`
 
-The action used for an oracle to pass an assignment over to an adapter.
+The action used for an oracle to pass a Snapshot update over to an adapter. The response should include:
+
+```json
+{
+  "description": "Payment was successfully released via FundFriend.",
+  "descriptionURL": "https://fundfriend.com/transactions/21433245",
+  "details": {
+    "amount": 1000000.00,
+    "currency": "USD"
+  },
+  "fulfilled": true,
+  "status": "in progress",
+  "summary": "Payment was released from Alice to Bob.",
+  "value": "1000000.00",
+  "xid": "d7e18eba-f5a1-45aa-a378-b4bcbbfbc4c6"
+}
+```
 
 Parameter | Type | Description
 ---- | ----- | --------
@@ -754,6 +793,13 @@ In order to fulfill an unfulfilled snapshot you must implement the update snapsh
 
 Used to indicate the end of an assignment.
 
+```json
+{
+  "status": "failed",
+  "xid": "1f1b5d2a-8f2b-486d-bfe9-45385004cfa3"
+}
+```
+
 Parameter | Type | Description
 ---- | ----- | --------
 status | string | optional string to specify the final state of the assignment
@@ -767,6 +813,22 @@ xid | string | identifier of the assignment
 __This is an integration that originates in the adapter and is pushed from the adapter to the core.__
 
 A pushed snapshot is automatically marked as fulfilled.
+
+```json
+{
+  "description": "Payment was successfully released via FundFriend.",
+  "descriptionURL": "https://fundfriend.com/transactions/21433245",
+  "details": {
+    "amount": 1000000.00,
+    "currency": "USD"
+  },
+  "fulfilled": true,
+  "status": "in progress",
+  "summary": "Payment was released from Alice to Bob.",
+  "value": "1000000.00",
+  "xid": "d7e18eba-f5a1-45aa-a378-b4bcbbfbc4c6"
+}
+```
 
 Parameter | Type | Description
 ---- | ----- | --------
@@ -787,6 +849,22 @@ __This is an integration that originates in the adapter and is pushed from the a
 
 Only unfulfilled snapshots can be updated. When a snapshot is updated it is automatically marked as fulfilled.
 
+```json
+{
+  "description": "Payment was successfully released via FundFriend.",
+  "descriptionURL": "https://fundfriend.com/transactions/21433245",
+  "details": {
+    "amount": 1000000.00,
+    "currency": "USD"
+  },
+  "fulfilled": true,
+  "status": "in progress",
+  "summary": "Payment was released from Alice to Bob.",
+  "value": "1000000.00",
+  "xid": "d7e18eba-f5a1-45aa-a378-b4bcbbfbc4c6"
+}
+```
+
 Parameter | Type | Description
 ---- | ----- | --------
 assignmentXID | string | identifier for the associated assignment
@@ -797,12 +875,11 @@ status | string | a description of the assignment's current status
 summary | string | a short human readable summary of the snapshot
 value | string | the latest value returned by the adapter
 xid | string | a unique external ID to identify the snapshot by
-k Coordinator Updates
-
-Once an assignment is created, it will automatically run and update itself based on its schedule and the logic in the adapter. Updates cannot be fed in by the coordinator, but the coordinator can receive push notifications whenever the assignment is updated. Simply set the URL of the assignment's coordinator to receive push notifications.
 
 
 # Coordinator Updates
+
+Once an assignment is created, it will automatically run and update itself based on its schedule and the logic in the adapter. Updates cannot be fed in by the coordinator, but the coordinator can receive push notifications whenever the assignment is updated. Simply set the URL of the assignment's coordinator to receive push notifications.
 
 All push notifications are authorized with the same credentials used to create the assignment.
 
