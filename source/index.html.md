@@ -46,7 +46,7 @@ On initialization, the oracle will give the option to print the first list of co
 ### Run
 
 ```shell
-docker run -t --env-file=.env smartcontract/smartoracle
+docker run -t --env-file=.env smartcontract/chainlink
 ```
 
 Once the database and Etehreum node are set up, you can run your oracle with your configured environment.
@@ -177,7 +177,7 @@ Parameter | Type | Description
 ---- | ----- | --------
 subtasks | array | an ordered list of the assignment's [subtasks](#subtasks)
 schedule | object | an [assignment schedule object](#scheduling)
-version | string | specify the version of the [assignment spec](https://github.com/smartoracles/spec), use "1.0.0" for the latest version
+version | string | specify the version of the [assignment spec](https://github.com/smartcontractkit/spec), use "1.0.0" for the latest version
 
 
 <aside class="success">
