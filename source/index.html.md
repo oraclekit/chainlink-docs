@@ -722,7 +722,7 @@ In order to make an adapter's input and output predictable, adapters need to spe
 
 ### Authentication
 
-When you create you configure your External Adapter with ChainLink, a set of basic auth credentials will be generated for you.
+When you create your External Adapter with ChainLink, a set of basic auth credentials will be generated for you.
 
 ## Create Assignment
 
