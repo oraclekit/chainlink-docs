@@ -157,7 +157,7 @@ The currency is configurable based on the networks that the oracle operates in. 
 ## Create
 ```shell
 curl -u apiKey:apiSecret -X POST -H 'Content-Type: application/json'
-  -d '{"assignment":{"subtasks":[{"adapterType": "httpGetJSON", "adapterParams": {"endpoint": "https://bitstamp.net/api/ticker/", "fields": ["last"]}},{"adapterType":"ethereumBytes32"}]}, "schedule":{"endAt":"1478028219","hour":"0","minute":"0"}},"version":"1.0.0"}'
+  -d '{"assignment":{"subtasks":[{"adapterType": "httpGetJSON", "adapterParams": {"endpoint": "https://bitstamp.net/api/ticker/", "fields": ["last"]}},{"adapterType":"ethereumBytes32"}]}, "schedule":{"endAt":"1478028219","hour":"0","minute":"0"},"version":"1.0.0"}'
   http://localhost:6688/assignments
 ```
 
