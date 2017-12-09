@@ -49,7 +49,7 @@ On initialization, the oracle will give the option to print the first list of co
 docker run -t --env-file=.env smartcontract/chainlink
 ```
 
-Once the database and Etehreum node are set up, you can run your oracle with your configured environment.
+Once the database and Ethereum node are set up, you can run your oracle with your configured environment.
 
 For more information on setting up an instance, or building it locally, visit the [wiki page on installation](https://github.com/oraclekit/smart_oracle/wiki/Install). Alternatively, if you want to view the source code, you can do so on [GitHub](https://github.com/oraclekit/smart_oracle).
 
