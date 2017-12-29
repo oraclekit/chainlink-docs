@@ -342,7 +342,7 @@ Parameter | Type | Description
 comparison | string | The operation used to compare the base value to the dynamic value. Options: `===`, `<`, `>`, or `contains`.
 endpoint | string | The URL that the JSON is pulled from.
 fields | array | The key path to follow to get the value to compare with the base value.
-value | string | The base value which is compared to they dynamic value. If possible the base value is coerced to the type of the dynamic value, if it is not possible the comparison is treated as false and an empty value is returned.
+value | string | The base value which is compared to the dynamic value. If possible the base value is coerced to the type of the dynamic value, if it is not possible the comparison is treated as false and an empty value is returned.
 
 ### Update Input
 
